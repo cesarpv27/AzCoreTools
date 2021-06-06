@@ -102,7 +102,7 @@ namespace AzCoreTools.Core.Validators
 
         private static bool IsValidStatus(int status)
         {
-            return Enum.IsDefined(typeof(HttpStatusCode), status);
+            return CoreTools.Helpers.Helper.EnumContains<HttpStatusCode>(status);
         }
     }
 }
