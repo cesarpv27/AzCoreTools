@@ -1,13 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <!-- This project will output netstandard2.0 and net461 assemblies -->
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <PackageId>Miscellaneous.AzCoreTools</PackageId>
+    <Version>1.0.2-alpha</Version>
+    <Authors>César Palomino Vila</Authors>
+    <Company>César Palomino Vila</Company>
+    <Description>This project contains and accumulates some basic features aimed at the AZURE platform that can help to develop other applications.
+
+TargetFrameworks: netstandard2.0; net461</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/cesarpv27/AzCoreTools</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Data.Tables" Version="12.0.0-beta.8" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.19.0" />
-    <PackageReference Include="Miscellaneous.CoreTools" Version="1.0.0.1" />
+    <PackageReference Include="Miscellaneous.CoreTools" Version="1.0.0.2" />
   </ItemGroup>
 
 </Project>

@@ -60,6 +60,7 @@ namespace AzCoreTools.Core.Validators
                 //case HttpStatusCode.SeeOther:
                 case HttpStatusCode.SwitchingProtocols:
                 case HttpStatusCode.Unused:
+                case HttpStatusCode.NoContent:
                     return true;
 
                 case HttpStatusCode.BadRequest:
@@ -70,7 +71,6 @@ namespace AzCoreTools.Core.Validators
                 case HttpStatusCode.Forbidden:
                 case HttpStatusCode.ExpectationFailed:
                 case HttpStatusCode.NotFound:
-                case HttpStatusCode.NoContent:
                 case HttpStatusCode.NotAcceptable:
                 case HttpStatusCode.NotImplemented:
                 case HttpStatusCode.PaymentRequired:
