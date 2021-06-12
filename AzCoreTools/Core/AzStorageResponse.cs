@@ -1,4 +1,5 @@
-﻿using AzCoreTools.Core.Validators;
+﻿using AzCoreTools.Core.Interfaces;
+using AzCoreTools.Core.Validators;
 using AzCoreTools.Helpers;
 using Azure;
 using Azure.Core;
@@ -9,9 +10,9 @@ using ExThrower = CoreTools.Throws.ExceptionThrower;
 
 namespace AzCoreTools.Core
 {
-    public class AzStorageResponse<T> : Response<T>
+    public class AzStorageResponse<T> : Response<T>, IAzStorageResponse
     {
-        protected Response _response;
+        protected internal Response _response;
         protected T _value;
 
         public virtual bool Succeeded { get; protected internal set; }
@@ -51,7 +52,7 @@ namespace AzCoreTools.Core
             _value = value;
 
             if (_response != null)
-                Succeeded =  ResponseValidator.ResponseSucceeded(_response);
+                Succeeded = ResponseValidator.ResponseSucceeded(_response);
         }
 
         protected virtual void Initialize<TIn>(TIn response, T value) where TIn : Response
@@ -73,14 +74,17 @@ namespace AzCoreTools.Core
             InitializeWithoutValidations<Response>(default, value);
         }
 
-        protected virtual void Initialize(Exception exception)
-        {
-            InitializeWithException(exception);
-        }
-
         protected virtual void InitializeWithException<TEx>(TEx exception) where TEx : Exception
         {
             AzCoreHelper.TryInitialize(exception, this, null);
+        }
+
+        protected virtual void Initialize<GenTSource, TSource>(TSource source) where TSource : AzStorageResponse<GenTSource>, new()
+        {
+            InitializeWithoutValidations(source._response, default);
+            Succeeded = Succeeded;
+            Message = Message;
+            Exception = Exception;
         }
 
         #endregion
@@ -167,16 +171,16 @@ namespace AzCoreTools.Core
 
         #endregion
 
-        public virtual AzStorageResponse<TNew> InduceResponse<TNew>()
+        public virtual AzStorageResponse<GenTOut> InduceResponse<GenTOut>()
         {
-            return InduceResponse<TNew, AzStorageResponse<TNew>>();
+            return InduceResponse<GenTOut, AzStorageResponse<GenTOut>>();
         }
 
-        public virtual TOut InduceResponse<TNew, TOut>() where TOut : AzStorageResponse<TNew>, new()
+        public virtual TOut InduceResponse<GenTOut, TOut>() where TOut : AzStorageResponse<GenTOut>, new()
         {
-            var result = AzStorageResponse<TNew>.CreateNew<TOut>();
-            result.InitializeWithoutValidations(_response, default);
-            result.Succeeded = Succeeded;
+            var result = AzStorageResponse<GenTOut>.CreateNew<TOut>();
+
+            result.Initialize<T, AzStorageResponse<T>>(this);
 
             return result;
         }
@@ -189,14 +193,13 @@ namespace AzCoreTools.Core
         public virtual TOut InduceGenericLessResponse<TOut>() where TOut : AzStorageResponse, new()
         {
             var result = AzStorageResponse.CreateNew<TOut>();
-            result.InitializeWithoutValidations(_response);
-            result.Succeeded = Succeeded;
+            result.Initialize<T, AzStorageResponse<T>>(this);
 
             return result;
         }
     }
 
-    public class AzStorageResponse : Response
+    public class AzStorageResponse : Response, IAzStorageResponse
     {
         protected Response _response;
 
@@ -242,6 +245,14 @@ namespace AzCoreTools.Core
         protected virtual void Initialize(RequestFailedException rfException)
         {
             AzCoreHelper.TryInitialize<bool>(rfException, null, this);
+        }
+
+        protected internal virtual void Initialize<GenTSource, TSource>(TSource source) where TSource : AzStorageResponse<GenTSource>, new()
+        {
+            InitializeWithoutValidations(source._response);
+            Succeeded = Succeeded;
+            Message = Message;
+            Exception = Exception;
         }
 
         #endregion
