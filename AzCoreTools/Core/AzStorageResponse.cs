@@ -82,9 +82,9 @@ namespace AzCoreTools.Core
         protected virtual void Initialize<GenTSource, TSource>(TSource source) where TSource : AzStorageResponse<GenTSource>, new()
         {
             InitializeWithoutValidations(source._response, default);
-            Succeeded = Succeeded;
-            Message = Message;
-            Exception = Exception;
+            Succeeded = source.Succeeded;
+            Message = source.Message;
+            Exception = source.Exception;
         }
 
         #endregion
@@ -250,9 +250,9 @@ namespace AzCoreTools.Core
         protected internal virtual void Initialize<GenTSource, TSource>(TSource source) where TSource : AzStorageResponse<GenTSource>, new()
         {
             InitializeWithoutValidations(source._response);
-            Succeeded = Succeeded;
-            Message = Message;
-            Exception = Exception;
+            Succeeded = source.Succeeded;
+            Message = source.Message;
+            Exception = source.Exception;
         }
 
         #endregion
