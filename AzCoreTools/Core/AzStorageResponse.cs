@@ -6,6 +6,7 @@ using Azure.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using ExThrower = CoreTools.Throws.ExceptionThrower;
 
 namespace AzCoreTools.Core
@@ -122,9 +123,12 @@ namespace AzCoreTools.Core
             return result;
         }
 
-        public static AzStorageResponse<T> Create(T value)
+        public static AzStorageResponse<T> Create(T value, bool succeeded)
         {
-            return Create<AzStorageResponse<T>>(value);
+            var result = Create<AzStorageResponse<T>>(value);
+            result.Succeeded = succeeded;
+
+            return result;
         }
 
         public static TOut Create<TOut>(T value) where TOut : AzStorageResponse<T>, new()
@@ -167,7 +171,13 @@ namespace AzCoreTools.Core
             }
         }
 
-        public override Response GetRawResponse() => _response;
+        public override Response GetRawResponse()
+        {
+            if (_response == null)
+                _response = InduceGenericLessResponse();
+
+            return _response;
+        }
 
         #endregion
 
@@ -313,9 +323,12 @@ namespace AzCoreTools.Core
         {
             get
             {
-                ThrowIfInvalid_response();
+                if (_response != null)
+                    return _response.Status;
+                if (Succeeded)
+                    return (int)HttpStatusCode.OK;
 
-                return _response.Status;
+                return (int)HttpStatusCode.Conflict;
             }
         }
         public override string ReasonPhrase

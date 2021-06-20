@@ -6,155 +6,54 @@ using AzCoreTools.Utilities.Tables;
 using Azure;
 using ExThrower = CoreTools.Throws.ExceptionThrower;
 using AzCoreTools.Core;
+using AzCoreTools.Helpers;
+using AzCoreTools.Utilities;
 
 namespace AzCoreTools.Extensions
 {
-    public static class AzStorageExtensions
+    public static class AzTableClientExtensions
     {
         #region Common
 
         static readonly Func<int, bool> isLessThanZero = value => value < 0;
+
+        private static AzStorageResponse<List<T>> TakeFromPageable<T>(
+            AzStorageResponse<Pageable<T>> response,
+            int take)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(response, nameof(response));
+            if (take < 0)
+                ExThrower.ST_ThrowArgumentException($"'{nameof(take)}' is less than cero");
+
+            if (!response.Succeeded)
+                return response.InduceResponse<List<T>>();
+
+            ExThrower.ST_ThrowIfArgumentIsNull(response.Value, nameof(response), "response.Value is null");
+
+            var result = new List<T>(Math.Min(take, 1000));
+            var count = 0;
+            foreach (var item in response.Value)
+            {
+                result.Add(item);
+
+                if (++count >= take)
+                    return AzStorageResponse<List<T>>.Create(result, true);
+            }
+
+            return AzStorageResponse<List<T>>.Create(result, true);
+        }
 
         private static AzStorageResponse<Pageable<T>> Query<T>(TableClient tableClient, 
             string filter,
             int? maxPerPage = null, 
             CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(filter);
+            ExThrower.ST_ThrowIfArgumentIsNull(filter);
 
             return AzStorageResponse<Pageable<T>>.Create(tableClient.Query<T>(
                 filter,
                 maxPerPage,
-                cancellationToken: cancellationToken));
-        }
-
-        private static AzStorageResponse<List<T>> Query<T>(TableClient tableClient,
-            Func<TableClient, int?, CancellationToken, AzStorageResponse<Pageable<T>>> func,
-            int? maxPerPage = null,
-            CancellationToken cancellationToken = default,
-            int take = int.MaxValue) where T : class, ITableEntity, new()
-        {
-            return Query<T, string, string, string>(tableClient,
-                func,
-                null,// funcA
-                null,// funcB
-                null,// funcC
-                null,// paramA
-                null,// paramB
-                null,// paramC
-                maxPerPage,
-                cancellationToken,
-                take);
-        }
-
-        private static AzStorageResponse<List<T>> Query<T, FTParamA>(TableClient tableClient,
-            Func<TableClient, FTParamA, int?, CancellationToken, AzStorageResponse<Pageable<T>>> func,
-            FTParamA param,
-            int? maxPerPage = null,
-            CancellationToken cancellationToken = default,
-            int take = int.MaxValue) where T : class, ITableEntity, new()
-        {
-            return Query<T, FTParamA, string, string>(tableClient,
-                null,// func
-                func,
-                null,// funcB
-                null,// funcC
-                param,
-                null,// paramB
-                null,// paramC
-                maxPerPage,
-                cancellationToken,
-                take);
-        }
-
-        private static AzStorageResponse<List<T>> Query<T, FTParamA, FTParamB>(TableClient tableClient, 
-            Func<TableClient, FTParamA, FTParamB, int?, CancellationToken, AzStorageResponse<Pageable<T>>> func,
-            FTParamA paramA,
-            FTParamB paramB,
-            int? maxPerPage = null,
-            CancellationToken cancellationToken = default,
-            int take = int.MaxValue) where T : class, ITableEntity, new()
-        {
-            return Query<T, FTParamA, FTParamB, string>(tableClient,
-                null,// func
-                null,// funcA
-                func,
-                null,// funcC
-                paramA,
-                paramB,
-                null,// paramC
-                maxPerPage,
-                cancellationToken,
-                take);
-        }
-
-        private static AzStorageResponse<List<T>> Query<T, FTParamA, FTParamB, FTParamC>(TableClient tableClient,
-            Func<TableClient, FTParamA, FTParamB, FTParamC, int?, CancellationToken, AzStorageResponse<Pageable<T>>> func,
-            FTParamA paramA,
-            FTParamB paramB,
-            FTParamC paramC,
-            int? maxPerPage = null,
-            CancellationToken cancellationToken = default,
-            int take = int.MaxValue) where T : class, ITableEntity, new()
-        {
-            return Query(tableClient,
-                null,// func
-                null,// funcA
-                null,// funcC
-                func,
-                paramA,
-                paramB,
-                paramC,
-                maxPerPage,
-                cancellationToken,
-                take);
-        }
-
-        private static AzStorageResponse<List<T>> Query<T, FTParamA, FTParamB, FTParamC>(TableClient tableClient,
-            Func<TableClient, int?, CancellationToken, AzStorageResponse<Pageable<T>>> func,
-            Func<TableClient, FTParamA, int?, CancellationToken, AzStorageResponse<Pageable<T>>> funcA,
-            Func<TableClient, FTParamA, FTParamB, int?, CancellationToken, AzStorageResponse<Pageable<T>>> funcB,
-            Func<TableClient, FTParamA, FTParamB, FTParamC, int?, CancellationToken, AzStorageResponse<Pageable<T>>> funcC,
-            FTParamA paramA,
-            FTParamB paramB,
-            FTParamC paramC,
-            int? maxPerPage = null,
-            CancellationToken cancellationToken = default,
-            int take = int.MaxValue) where T : class, ITableEntity, new()
-        {
-            ExThrower.ST_ThrowIfArgumentIsOutOfRange(take, isLessThanZero, nameof(take));
-            if (func == null && funcA == null && funcB == null && funcC == null)
-                ExThrower.ST_ThrowArgumentException();
-
-            if (take == 0)
-                return AzEmptyResponse<List<T>>.Create(System.Net.HttpStatusCode.BadRequest);
-
-            AzStorageResponse<Pageable<T>> funcResponse;
-            if (func != null)
-                funcResponse = func(tableClient, maxPerPage, cancellationToken);
-            else
-            if (funcA != null)
-                funcResponse = funcA(tableClient, paramA, maxPerPage, cancellationToken);
-            else
-            if (funcB != null)
-                funcResponse = funcB(tableClient, paramA, paramB, maxPerPage, cancellationToken);
-            else
-                funcResponse = funcC(tableClient, paramA, paramB, paramC, maxPerPage, cancellationToken);
-
-            if (!funcResponse.Succeeded)
-                return funcResponse.InduceResponse<List<T>>();
-
-            var result = new List<T>(take);
-            var count = 0;
-            foreach (var item in funcResponse.Value)
-            {
-                result.Add(item);
-
-                if (++count >= take)
-                    return AzStorageResponse<List<T>>.Create(result);
-            }
-
-            return AzStorageResponse<List<T>>.Create(result);
+                cancellationToken: cancellationToken), true);
         }
 
         #endregion
@@ -175,16 +74,15 @@ namespace AzCoreTools.Extensions
 
         public static AzStorageResponse<List<T>> QueryByPartitionKey<T>(this TableClient tableClient, 
             string partitionKey,
+            int? maxPerPage = null, 
             CancellationToken cancellationToken = default,
-            int take = int.MaxValue) where T : class, ITableEntity, new()
+            int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
-            return Query(
-                tableClient, 
-                PageableQueryByPartitionKey<T>, 
-                partitionKey, 
-                null, 
-                cancellationToken, 
-                take);
+            return TakeFromPageable(FuncHelper.Execute<TableClient, string, int?, CancellationToken, AzStorageResponse<Pageable<T>>, AzStorageResponse<Pageable<T>>, Pageable<T>>(
+                PageableQueryByPartitionKey<T>,
+                tableClient,
+                partitionKey,
+                maxPerPage, cancellationToken), take);
         }
 
         #endregion
@@ -206,16 +104,15 @@ namespace AzCoreTools.Extensions
 
         public static AzStorageResponse<List<T>> QueryByPartitionKeyStartPattern<T>(this TableClient tableClient, 
             string startPattern,
+            int? maxPerPage = null, 
             CancellationToken cancellationToken = default, 
-            int take = int.MaxValue) where T : class, ITableEntity, new()
+            int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
-            return Query(
-                tableClient, 
-                PageableQueryByPartitionKeyStartPattern<T>, 
-                startPattern, 
-                null, 
-                cancellationToken, 
-                take);
+            return TakeFromPageable(FuncHelper.Execute<TableClient, string, int?, CancellationToken, AzStorageResponse<Pageable<T>>, AzStorageResponse<Pageable<T>>, Pageable<T>>(
+                PageableQueryByPartitionKeyStartPattern<T>,
+                tableClient,
+                startPattern,
+                maxPerPage, cancellationToken), take);
         }
 
         #endregion
@@ -239,17 +136,16 @@ namespace AzCoreTools.Extensions
         public static AzStorageResponse<List<T>> QueryByPartitionKeyRowKey<T>(this TableClient tableClient, 
             string partitionKey, 
             string rowKey,
-            CancellationToken cancellationToken = default, 
-            int take = int.MaxValue) where T : class, ITableEntity, new()
+            int? maxPerPage = null, 
+            CancellationToken cancellationToken = default,
+            int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
-            return Query(
-                tableClient, 
-                PageableQueryByPartitionKeyRowKey<T>, 
-                partitionKey, 
-                rowKey, 
-                null, 
-                cancellationToken, 
-                take);
+            return TakeFromPageable(FuncHelper.Execute<TableClient, string, string, int?, CancellationToken, AzStorageResponse<Pageable<T>>, AzStorageResponse<Pageable<T>>, Pageable<T>>(
+                PageableQueryByPartitionKeyRowKey<T>,
+                tableClient,
+                partitionKey,
+                rowKey,
+                maxPerPage, cancellationToken), take);
         }
 
         #endregion
@@ -276,17 +172,16 @@ namespace AzCoreTools.Extensions
         public static AzStorageResponse<List<T>> QueryByPartitionKeyRowKeyStartPattern<T>(this TableClient tableClient,
             string partitionKey,
             string rowKeyStartPattern,
+            int? maxPerPage = null,
             CancellationToken cancellationToken = default,
-            int take = int.MaxValue) where T : class, ITableEntity, new()
+            int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
-            return Query(
-                tableClient, 
-                PageableQueryByPartitionKeyRowKeyStartPattern<T>, 
-                partitionKey, 
-                rowKeyStartPattern, 
-                null, 
-                cancellationToken, 
-                take);
+            return TakeFromPageable(FuncHelper.Execute<TableClient, string, string, int?, CancellationToken, AzStorageResponse<Pageable<T>>, AzStorageResponse<Pageable<T>>, Pageable<T>>(
+                PageableQueryByPartitionKeyRowKeyStartPattern<T>,
+                tableClient,
+                partitionKey,
+                rowKeyStartPattern,
+                maxPerPage, cancellationToken), take);
         }
 
         #endregion
@@ -313,17 +208,16 @@ namespace AzCoreTools.Extensions
         public static AzStorageResponse<List<T>> QueryByPartitionKeyStartPatternRowKeyStartPattern<T>(this TableClient tableClient,
             string partitionKeyStartPattern,
             string rowKeyStartPattern,
+            int? maxPerPage = null,
             CancellationToken cancellationToken = default,
-            int take = int.MaxValue) where T : class, ITableEntity, new()
+            int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
-            return Query(
-                tableClient,
+            return TakeFromPageable(FuncHelper.Execute<TableClient, string, string, int?, CancellationToken, AzStorageResponse<Pageable<T>>, AzStorageResponse<Pageable<T>>, Pageable<T>>(
                 PageableQueryByPartitionKeyStartPatternRowKeyStartPattern<T>,
+                tableClient,
                 partitionKeyStartPattern,
                 rowKeyStartPattern,
-                null,
-                cancellationToken,
-                take);
+                maxPerPage, cancellationToken), take);
         }
 
         #endregion
@@ -347,17 +241,16 @@ namespace AzCoreTools.Extensions
         public static AzStorageResponse<List<T>> QueryByTimestamp<T>(this TableClient tableClient,
             DateTime timeStampFrom,
             DateTime timeStampTo,
+            int? maxPerPage = null,
             CancellationToken cancellationToken = default,
-            int take = int.MaxValue) where T : class, ITableEntity, new()
+            int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
-            return Query(
-                tableClient,
+            return TakeFromPageable(FuncHelper.Execute<TableClient, DateTime, DateTime, int?, CancellationToken, AzStorageResponse<Pageable<T>>, AzStorageResponse<Pageable<T>>, Pageable<T>>(
                 PageableQueryByTimestamp<T>,
+                tableClient,
                 timeStampFrom,
                 timeStampTo,
-                null,
-                cancellationToken,
-                take);
+                maxPerPage, cancellationToken), take);
         }
 
         #endregion
@@ -385,18 +278,17 @@ namespace AzCoreTools.Extensions
             string partitionKey,
             DateTime timeStampFrom,
             DateTime timeStampTo,
+            int? maxPerPage = null,
             CancellationToken cancellationToken = default,
-            int take = int.MaxValue) where T : class, ITableEntity, new()
+            int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
-            return Query(
-                tableClient,
+            return TakeFromPageable(FuncHelper.Execute<TableClient, string, DateTime, DateTime, int?, CancellationToken, AzStorageResponse<Pageable<T>>, AzStorageResponse<Pageable<T>>, Pageable<T>>(
                 PageableQueryByPartitionKeyTimestamp<T>,
+                tableClient,
                 partitionKey,
                 timeStampFrom,
                 timeStampTo,
-                null,
-                cancellationToken,
-                take);
+                maxPerPage, cancellationToken), take);
         }
 
         #endregion
@@ -415,15 +307,14 @@ namespace AzCoreTools.Extensions
         }
 
         public static AzStorageResponse<List<T>> QueryAll<T>(this TableClient tableClient,
+            int? maxPerPage = null,
             CancellationToken cancellationToken = default,
-            int take = int.MaxValue) where T : class, ITableEntity, new()
+            int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
-            return Query(
-                tableClient,
+            return TakeFromPageable(FuncHelper.Execute<TableClient, int?, CancellationToken, AzStorageResponse<Pageable<T>>, AzStorageResponse<Pageable<T>>, Pageable<T>>(
                 PageableQueryAll<T>,
-                null,
-                cancellationToken,
-                take);
+                tableClient,
+                maxPerPage, cancellationToken), take);
         }
 
         #endregion
