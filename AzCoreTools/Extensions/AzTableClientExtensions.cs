@@ -245,7 +245,7 @@ namespace AzCoreTools.Extensions
             return Query<T>(
                 tableClient,
                 TableQueryBuilder.GenerateTimestampFilterCondition(QueryComparison.ge, timeStampFrom)
-                .And(TableQueryBuilder.GenerateTimestampFilterCondition(QueryComparison.lt, timeStampTo)).ToString(),
+                .And(TableQueryBuilder.GenerateTimestampFilterCondition(QueryComparison.lt, timeStampTo.AddMilliseconds(1))).ToString(),
                 maxPerPage,
                 cancellationToken);
         }
@@ -281,7 +281,7 @@ namespace AzCoreTools.Extensions
                 TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.eq, partitionKey)
                 .And(
                     TableQueryBuilder.GenerateTimestampFilterCondition(QueryComparison.ge, timeStampFrom)
-                    .And(TableQueryBuilder.GenerateTimestampFilterCondition(QueryComparison.lt, timeStampTo))).ToString(),
+                    .And(TableQueryBuilder.GenerateTimestampFilterCondition(QueryComparison.lt, timeStampTo.AddMilliseconds(1)))).ToString(),
                 maxPerPage,
                 cancellationToken);
         }
