@@ -8,6 +8,7 @@ using ExThrower = CoreTools.Throws.ExceptionThrower;
 using AzCoreTools.Core;
 using AzCoreTools.Helpers;
 using AzCoreTools.Utilities;
+using CoreTools.Extensions;
 
 namespace AzCoreTools.Extensions
 {
@@ -97,7 +98,7 @@ namespace AzCoreTools.Extensions
             return Query<T>(
                 tableClient,
                 TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.ge, startPattern)
-                .And(TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.lt, startPattern)).ToString(),
+                .And(TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.lt, startPattern.AddLastChar())).ToString(),
                 maxPerPage,
                 cancellationToken);
         }
@@ -163,7 +164,7 @@ namespace AzCoreTools.Extensions
                 TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.eq, partitionKey)
                 .And(
                     TableQueryBuilder.GenerateRowKeyFilterCondition(QueryComparison.ge, rowKeyStartPattern)
-                    .And(TableQueryBuilder.GenerateRowKeyFilterCondition(QueryComparison.lt, rowKeyStartPattern)))
+                    .And(TableQueryBuilder.GenerateRowKeyFilterCondition(QueryComparison.lt, rowKeyStartPattern.AddLastChar())))
                 .ToString(),
                 maxPerPage,
                 cancellationToken);
@@ -197,10 +198,10 @@ namespace AzCoreTools.Extensions
             return Query<T>(
                 tableClient,
                 TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.ge, partitionKeyStartPattern)
-                .And(TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.lt, partitionKeyStartPattern))
+                .And(TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.lt, partitionKeyStartPattern.AddLastChar()))
                 .And(
                     TableQueryBuilder.GenerateRowKeyFilterCondition(QueryComparison.ge, rowKeyStartPattern)
-                    .And(TableQueryBuilder.GenerateRowKeyFilterCondition(QueryComparison.lt, rowKeyStartPattern))).ToString(),
+                    .And(TableQueryBuilder.GenerateRowKeyFilterCondition(QueryComparison.lt, rowKeyStartPattern.AddLastChar()))).ToString(),
                 maxPerPage,
                 cancellationToken);
         }
