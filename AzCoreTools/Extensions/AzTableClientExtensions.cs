@@ -9,6 +9,8 @@ using AzCoreTools.Core;
 using AzCoreTools.Helpers;
 using AzCoreTools.Utilities;
 using CoreTools.Extensions;
+using AzCoreTools.Texting;
+using System.Linq;
 
 namespace AzCoreTools.Extensions
 {
@@ -123,30 +125,39 @@ namespace AzCoreTools.Extensions
         public static AzStorageResponse<Pageable<T>> PageableQueryByPartitionKeyRowKey<T>(this TableClient tableClient, 
             string partitionKey, 
             string rowKey,
-            int? maxPerPage = null, 
             CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
         {
             return Query<T>(
                 tableClient,
                 TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.eq, partitionKey)
                 .And(TableQueryBuilder.GenerateRowKeyFilterCondition(QueryComparison.eq, rowKey)).ToString(),
-                maxPerPage,
+                null,
                 cancellationToken);
         }
 
-        public static AzStorageResponse<List<T>> QueryByPartitionKeyRowKey<T>(this TableClient tableClient, 
+        public static AzStorageResponse<T> QueryByPartitionKeyRowKey<T>(this TableClient tableClient, 
             string partitionKey, 
             string rowKey,
-            int? maxPerPage = null, 
-            CancellationToken cancellationToken = default,
-            int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
+            CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
         {
-            return TakeFromPageable(FuncHelper.Execute<TableClient, string, string, int?, CancellationToken, AzStorageResponse<Pageable<T>>, AzStorageResponse<Pageable<T>>, Pageable<T>>(
+            var innerResponse = TakeFromPageable(FuncHelper.Execute<TableClient, string, string, CancellationToken, AzStorageResponse<Pageable<T>>, AzStorageResponse<Pageable<T>>, Pageable<T>>(
                 PageableQueryByPartitionKeyRowKey<T>,
                 tableClient,
                 partitionKey,
                 rowKey,
-                maxPerPage, cancellationToken), take);
+                cancellationToken), ConstProvider.DefaultTake);
+
+            if (!innerResponse.Succeeded || innerResponse.Value == null || innerResponse.Value.Count == 0)
+                return innerResponse.InduceResponse<T>();
+
+            if (innerResponse.Value.Count > 1)
+            {
+                var response = AzStorageResponse<T>.Create(null, false);
+                response.Message = AzTextingResources.More_than_one_entity_found;
+                return response;
+            }
+
+            return AzStorageResponse<T>.Create(innerResponse.Value.First(), true);
         }
 
         #endregion

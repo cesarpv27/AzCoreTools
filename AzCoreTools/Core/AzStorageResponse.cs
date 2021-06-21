@@ -80,9 +80,9 @@ namespace AzCoreTools.Core
             AzCoreHelper.TryInitialize(exception, this, null);
         }
 
-        protected virtual void Initialize<GenTSource, TSource>(TSource source) where TSource : AzStorageResponse<GenTSource>, new()
+        protected virtual void Initialize<GenTSource, TSource>(TSource source, T value = default) where TSource : AzStorageResponse<GenTSource>, new()
         {
-            InitializeWithoutValidations(source._response, default);
+            InitializeWithoutValidations(source._response, value);
             Succeeded = source.Succeeded;
             Message = source.Message;
             Exception = source.Exception;
@@ -181,16 +181,17 @@ namespace AzCoreTools.Core
 
         #endregion
 
-        public virtual AzStorageResponse<GenTOut> InduceResponse<GenTOut>()
+        public virtual AzStorageResponse<GenTOut> InduceResponse<GenTOut>(GenTOut value = default)
         {
-            return InduceResponse<GenTOut, AzStorageResponse<GenTOut>>();
+            return InduceResponse<GenTOut, AzStorageResponse<GenTOut>>(value);
         }
 
-        public virtual TOut InduceResponse<GenTOut, TOut>() where TOut : AzStorageResponse<GenTOut>, new()
+        public virtual TOut InduceResponse<GenTOut, TOut>(GenTOut value = default) 
+            where TOut : AzStorageResponse<GenTOut>, new()
         {
             var result = AzStorageResponse<GenTOut>.CreateNew<TOut>();
 
-            result.Initialize<T, AzStorageResponse<T>>(this);
+            result.Initialize<T, AzStorageResponse<T>>(this, value);
 
             return result;
         }
