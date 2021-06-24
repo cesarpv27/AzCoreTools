@@ -327,9 +327,9 @@ namespace AzCoreTools.Core
                 if (_response != null)
                     return _response.Status;
                 if (Succeeded)
-                    return (int)HttpStatusCode.OK;
+                    return CoreTools.Helpers.Helper.ConvertToInt(HttpStatusCode.OK);
 
-                return (int)HttpStatusCode.Conflict;
+                return CoreTools.Helpers.Helper.ConvertToInt(HttpStatusCode.Conflict);
             }
         }
         public override string ReasonPhrase

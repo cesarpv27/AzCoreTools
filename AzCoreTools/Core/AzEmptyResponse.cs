@@ -65,7 +65,7 @@ namespace AzCoreTools.Core
                 reasonPhrase = status.ToString();
 
             var result = CreateNew<TOut>();
-            result.Initialize((int)status, reasonPhrase);
+            result.Initialize(CoreTools.Helpers.Helper.ConvertToInt(status), reasonPhrase);
 
             return result;
         }
