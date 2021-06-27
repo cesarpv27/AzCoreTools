@@ -361,7 +361,7 @@ namespace AzCoreTools.Helpers
         {
             try
             {
-                FTOut funcResponse = await ExecuteFuncAsync(func, funcParams);
+                FTOut funcResponse = await ExecuteFuncAsync<FTOut>(func, funcParams);
 
                 return AzStorageResponse.Create<FTOut, TOut>(funcResponse);
             }
