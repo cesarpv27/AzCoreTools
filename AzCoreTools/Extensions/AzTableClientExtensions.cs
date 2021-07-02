@@ -18,6 +18,8 @@ namespace AzCoreTools.Extensions
     {
         #region Common
 
+        private static int? defaultMaxPerPage = null;
+
         private static AzStorageResponse<List<T>> TakeFromPageable<T>(
             AzStorageResponse<Pageable<T>> response,
             int take)
@@ -75,7 +77,6 @@ namespace AzCoreTools.Extensions
 
         public static AzStorageResponse<List<T>> QueryByPartitionKey<T>(this TableClient tableClient, 
             string partitionKey,
-            int? maxPerPage = null, 
             CancellationToken cancellationToken = default,
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
@@ -83,7 +84,7 @@ namespace AzCoreTools.Extensions
                 PageableQueryByPartitionKey<T>,
                 tableClient,
                 partitionKey,
-                maxPerPage, cancellationToken), take);
+                defaultMaxPerPage, cancellationToken), take);
         }
 
         #endregion
@@ -105,7 +106,6 @@ namespace AzCoreTools.Extensions
 
         public static AzStorageResponse<List<T>> QueryByPartitionKeyStartPattern<T>(this TableClient tableClient, 
             string startPattern,
-            int? maxPerPage = null, 
             CancellationToken cancellationToken = default, 
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
@@ -113,7 +113,7 @@ namespace AzCoreTools.Extensions
                 PageableQueryByPartitionKeyStartPattern<T>,
                 tableClient,
                 startPattern,
-                maxPerPage, cancellationToken), take);
+                defaultMaxPerPage, cancellationToken), take);
         }
 
         #endregion
@@ -129,7 +129,7 @@ namespace AzCoreTools.Extensions
                 tableClient,
                 TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.eq, partitionKey)
                 .And(TableQueryBuilder.GenerateRowKeyFilterCondition(QueryComparison.eq, rowKey)).ToString(),
-                null,
+                defaultMaxPerPage,
                 cancellationToken);
         }
 
@@ -182,7 +182,6 @@ namespace AzCoreTools.Extensions
         public static AzStorageResponse<List<T>> QueryByPartitionKeyRowKeyStartPattern<T>(this TableClient tableClient,
             string partitionKey,
             string rowKeyStartPattern,
-            int? maxPerPage = null,
             CancellationToken cancellationToken = default,
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
@@ -191,7 +190,7 @@ namespace AzCoreTools.Extensions
                 tableClient,
                 partitionKey,
                 rowKeyStartPattern,
-                maxPerPage, cancellationToken), take);
+                defaultMaxPerPage, cancellationToken), take);
         }
 
         #endregion
@@ -218,7 +217,6 @@ namespace AzCoreTools.Extensions
         public static AzStorageResponse<List<T>> QueryByPartitionKeyStartPatternRowKeyStartPattern<T>(this TableClient tableClient,
             string partitionKeyStartPattern,
             string rowKeyStartPattern,
-            int? maxPerPage = null,
             CancellationToken cancellationToken = default,
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
@@ -227,7 +225,7 @@ namespace AzCoreTools.Extensions
                 tableClient,
                 partitionKeyStartPattern,
                 rowKeyStartPattern,
-                maxPerPage, cancellationToken), take);
+                defaultMaxPerPage, cancellationToken), take);
         }
 
         #endregion
@@ -251,7 +249,6 @@ namespace AzCoreTools.Extensions
         public static AzStorageResponse<List<T>> QueryByTimestamp<T>(this TableClient tableClient,
             DateTime timeStampFrom,
             DateTime timeStampTo,
-            int? maxPerPage = null,
             CancellationToken cancellationToken = default,
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
@@ -260,7 +257,7 @@ namespace AzCoreTools.Extensions
                 tableClient,
                 timeStampFrom,
                 timeStampTo,
-                maxPerPage, cancellationToken), take);
+                defaultMaxPerPage, cancellationToken), take);
         }
 
         #endregion
@@ -288,7 +285,6 @@ namespace AzCoreTools.Extensions
             string partitionKey,
             DateTime timeStampFrom,
             DateTime timeStampTo,
-            int? maxPerPage = null,
             CancellationToken cancellationToken = default,
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
@@ -298,7 +294,7 @@ namespace AzCoreTools.Extensions
                 partitionKey,
                 timeStampFrom,
                 timeStampTo,
-                maxPerPage, cancellationToken), take);
+                defaultMaxPerPage, cancellationToken), take);
         }
 
         #endregion
@@ -317,14 +313,13 @@ namespace AzCoreTools.Extensions
         }
 
         public static AzStorageResponse<List<T>> QueryAll<T>(this TableClient tableClient,
-            int? maxPerPage = null,
             CancellationToken cancellationToken = default,
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
             return TakeFromPageable(FuncHelper.Execute<TableClient, int?, CancellationToken, AzStorageResponse<Pageable<T>>, AzStorageResponse<Pageable<T>>, Pageable<T>>(
                 PageableQueryAll<T>,
                 tableClient,
-                maxPerPage, cancellationToken), take);
+                defaultMaxPerPage, cancellationToken), take);
         }
 
         #endregion
