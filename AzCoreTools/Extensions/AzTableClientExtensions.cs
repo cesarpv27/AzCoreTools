@@ -18,15 +18,13 @@ namespace AzCoreTools.Extensions
     {
         #region Common
 
-        static readonly Func<int, bool> isLessThanZero = value => value < 0;
-
         private static AzStorageResponse<List<T>> TakeFromPageable<T>(
             AzStorageResponse<Pageable<T>> response,
             int take)
         {
             ExThrower.ST_ThrowIfArgumentIsNull(response, nameof(response));
-            if (take < 0)
-                ExThrower.ST_ThrowArgumentException($"'{nameof(take)}' is less than cero");
+            if (take <= 0)
+                ExThrower.ST_ThrowArgumentException($"'{nameof(take)}' must be greater than zero");
 
             if (!response.Succeeded)
                 return response.InduceResponse<List<T>>();
