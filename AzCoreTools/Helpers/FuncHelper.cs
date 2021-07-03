@@ -118,13 +118,13 @@ namespace AzCoreTools.Helpers
 
                 return AzStorageResponse<GenTOut>.Create<FTOut, TOut>(funcResponse);
             }
-            catch (RequestFailedException e)
-            {
-                return AzStorageResponse<GenTOut>.Create<TOut>(e);
-            }
+            //catch (RequestFailedException e)
+            //{
+            //    return AzStorageResponse<GenTOut>.Create<TOut>(e);
+            //}
             catch (Exception e)
             {
-                throw;
+                return AzStorageResponse<GenTOut>.Create<TOut>(e);
             }
         }
 
@@ -139,13 +139,9 @@ namespace AzCoreTools.Helpers
 
                 return AzStorageResponse<GenTOut>.Create<FTOut, TOut>(funcResponse);
             }
-            catch (RequestFailedException e)
+            catch (Exception e)
             {
                 return AzStorageResponse<GenTOut>.Create<TOut>(e);
-            }
-            catch (Exception)
-            {
-                throw;
             }
         }
 
@@ -344,13 +340,9 @@ namespace AzCoreTools.Helpers
 
                 return AzStorageResponse.Create<FTOut, TOut>(funcResponse);
             }
-            catch (RequestFailedException e)
+            catch (Exception e)
             {
                 return AzStorageResponse.Create<TOut>(e);
-            }
-            catch (Exception)
-            {
-                throw;
             }
         }
 
@@ -364,14 +356,10 @@ namespace AzCoreTools.Helpers
                 FTOut funcResponse = await ExecuteFuncAsync<FTOut>(func, funcParams);
 
                 return AzStorageResponse.Create<FTOut, TOut>(funcResponse);
-            }
-            catch (RequestFailedException e)
+            }            
+            catch (Exception e)
             {
                 return AzStorageResponse.Create<TOut>(e);
-            }
-            catch (Exception)
-            {
-                throw;
             }
         }
 

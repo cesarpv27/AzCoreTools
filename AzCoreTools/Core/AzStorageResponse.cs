@@ -253,9 +253,9 @@ namespace AzCoreTools.Core
             Initialize(response.GetRawResponse());
         }
 
-        protected virtual void Initialize(RequestFailedException rfException)
+        protected virtual void Initialize(Exception exception)
         {
-            AzCoreHelper.TryInitialize<bool>(rfException, null, this);
+            AzCoreHelper.TryInitialize<bool>(exception, null, this);
         }
 
         protected internal virtual void Initialize<GenTSource, TSource>(TSource source) where TSource : AzStorageResponse<GenTSource>, new()
@@ -301,17 +301,17 @@ namespace AzCoreTools.Core
             return result;
         }
 
-        public static AzStorageResponse Create(RequestFailedException rfException)
+        public static AzStorageResponse Create(Exception exception)
         {
-            return Create<AzStorageResponse>(rfException);
+            return Create<AzStorageResponse>(exception);
         }
 
-        public static TOut Create<TOut>(RequestFailedException rfException) where TOut : AzStorageResponse, new()
+        public static TOut Create<TOut>(Exception exception) where TOut : AzStorageResponse, new()
         {
-            ExThrower.ST_ThrowIfArgumentIsNull(rfException, nameof(rfException));
+            ExThrower.ST_ThrowIfArgumentIsNull(exception, nameof(exception));
 
             var result = CreateNew<TOut>();
-            result.Initialize(rfException);
+            result.Initialize(exception);
 
             return result;
         }
