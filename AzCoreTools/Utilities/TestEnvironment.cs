@@ -43,7 +43,7 @@ namespace AzCoreTools.Utilities
             }
         }
 
-        private static string GenerateNaivePersonalPrivateKey()
+        public static string GenerateNaivePersonalPrivateKey()
         {
             string separator = "-";
             return $"{Environment.UserName}" +

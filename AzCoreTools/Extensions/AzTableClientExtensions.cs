@@ -25,16 +25,8 @@ namespace AzCoreTools.Extensions
             AzStorageResponse<Pageable<T>> response,
             int take)
         {
-            if (TakeFromPageable_ValidateParams(response, take))
+            if (!TakeFromPageable_ValidateParams(response, take))
                 return response.InduceResponse<List<T>>();
-            //ExThrower.ST_ThrowIfArgumentIsNull(response, nameof(response));
-            //if (take <= 0)
-            //    ExThrower.ST_ThrowArgumentException($"'{nameof(take)}' must be greater than zero");
-
-            //if (!response.Succeeded)
-            //    return response.InduceResponse<List<T>>();
-
-            //ExThrower.ST_ThrowIfArgumentIsNull(response.Value, nameof(response), "response.Value is null");
 
             var result = new List<T>(Math.Min(take, 1000));
             var count = 0;
@@ -53,7 +45,7 @@ namespace AzCoreTools.Extensions
             AzStorageResponse<AsyncPageable<T>> response,
             int take)
         {
-            if (TakeFromPageable_ValidateParams(response, take))
+            if (!TakeFromPageable_ValidateParams(response, take))
                 return response.InduceResponse<List<T>>();
 
             var result = new List<T>(Math.Min(take, 1000));
