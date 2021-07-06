@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AzCoreTools.Core
 {
-    public enum OptionCreateResource
+    public enum CreateResourcePolicy
     {
         OnlyFirstTime,
         Always,
