@@ -4,17 +4,35 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using ExThrower = CoreTools.Throws.ExceptionThrower;
+using AzCosmos = Microsoft.Azure.Cosmos;
 
 namespace AzCoreTools.Core.Validators
 {
     public class ResponseValidator
     {
-        public static bool CreateResourceResponseSucceeded<T>(Response<T> response)
+        #region Cosmos response
+
+        public static bool CreateResourceCosmosResponseSucceeded<Resp, T>(Resp response) where Resp : AzCosmos.Response<T>
         {
-            return response == null || ResponseSucceeded(response);
+            return response == null || CosmosResponseSucceeded<Resp, T>(response);
         }
 
-        public static bool ResponseSucceeded<T>(Response<T> response)
+        public static bool CosmosResponseSucceeded<Resp, T>(Resp response) where Resp : AzCosmos.Response<T>
+        {
+            if (!IsValidStatus((int)response.StatusCode))
+                return false;
+
+            return StatusSucceeded(response.StatusCode);
+        }
+
+        #endregion
+
+        public static bool CreateResourceResponseSucceeded<Resp, T>(Resp response) where Resp : Response<T>
+        {
+            return response == null || ResponseSucceeded<Resp, T>(response);
+        }
+
+        public static bool ResponseSucceeded<Resp, T>(Resp response) where Resp : Response<T>
         {
             var rawResponse = response.GetRawResponse();
             if (!IsValidStatus(rawResponse.Status))
@@ -23,7 +41,7 @@ namespace AzCoreTools.Core.Validators
             return StatusSucceeded((HttpStatusCode)rawResponse.Status);
         }
 
-        public static bool ResponseSucceeded(Response response)
+        public static bool ResponseSucceeded<Resp>(Resp response) where Resp : Response
         {
             if (!IsValidStatus(response.Status))
                 return false;
@@ -104,5 +122,34 @@ namespace AzCoreTools.Core.Validators
         {
             return CoreTools.Helpers.Helper.EnumContains<HttpStatusCode>(status);
         }
+
+        #region Obsolete
+
+        [Obsolete("Generic method version should be used", false)]
+        public static bool CreateResourceResponseSucceeded<T>(Response<T> response)
+        {
+            return response == null || ResponseSucceeded(response);
+        }
+
+        [Obsolete("Generic method version should be used", false)]
+        public static bool ResponseSucceeded<T>(Response<T> response)
+        {
+            var rawResponse = response.GetRawResponse();
+            if (!IsValidStatus(rawResponse.Status))
+                return false;
+
+            return StatusSucceeded((HttpStatusCode)rawResponse.Status);
+        }
+
+        [Obsolete("Generic method version should be used", false)]
+        public static bool ResponseSucceeded(Response response)
+        {
+            if (!IsValidStatus(response.Status))
+                return false;
+
+            return StatusSucceeded((HttpStatusCode)response.Status);
+        }
+
+        #endregion
     }
 }

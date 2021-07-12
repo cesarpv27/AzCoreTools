@@ -53,7 +53,7 @@ namespace AzCoreTools.Core
             _value = value;
 
             if (_response != null)
-                Succeeded = ResponseValidator.ResponseSucceeded(_response);
+                Succeeded = ResponseValidator.ResponseSucceeded<Response>(_response);
         }
 
         protected virtual void Initialize<TIn>(TIn response, T value) where TIn : Response
@@ -236,7 +236,7 @@ namespace AzCoreTools.Core
             _response = response;
 
             if (_response != null)
-                Succeeded =  ResponseValidator.ResponseSucceeded(_response);
+                Succeeded =  ResponseValidator.ResponseSucceeded<Response>(_response);
         }
 
         protected virtual void Initialize<TIn>(TIn response) where TIn : Response
