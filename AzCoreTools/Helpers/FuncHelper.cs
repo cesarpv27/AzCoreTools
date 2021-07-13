@@ -30,7 +30,7 @@ namespace AzCoreTools.Helpers
             byParamsFuncType = (ByParamsFuncType)funcParams.Length;
         }
 
-        private static FTOut ExecuteFunc<FTOut>(
+        internal static FTOut ExecuteFunc<FTOut>(
             dynamic func,
             dynamic[] funcParams)
         {
@@ -66,7 +66,7 @@ namespace AzCoreTools.Helpers
             return funcResponse;
         }
 
-        private static async Task<FTOut> ExecuteFuncAsync<FTOut>(
+        internal static async Task<FTOut> ExecuteFuncAsync<FTOut>(
             dynamic func,
             dynamic[] funcParams)
         {
@@ -323,7 +323,6 @@ namespace AzCoreTools.Helpers
 
         #endregion
     }
-
 
     public partial class FuncHelper
     {

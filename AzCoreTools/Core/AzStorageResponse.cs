@@ -11,14 +11,14 @@ using ExThrower = CoreTools.Throws.ExceptionThrower;
 
 namespace AzCoreTools.Core
 {
-    public class AzStorageResponse<T> : Response<T>, IAzStorageResponse
+    public class AzStorageResponse<T> : Response<T>, IAzStorageResponse<T>
     {
         protected internal Response _response;
         protected T _value;
 
-        public virtual bool Succeeded { get; protected internal set; }
-        public virtual Exception Exception { get; protected internal set; }
-        public virtual string Message { get; protected internal set; }
+        public virtual bool Succeeded { get; set; }
+        public virtual Exception Exception { get; set; }
+        public virtual string Message { get; set; }
 
         #region Constructors
 
@@ -47,7 +47,7 @@ namespace AzCoreTools.Core
 
         #region Initializers
 
-        private void InitializeWithoutValidations<TIn>(TIn response, T value) where TIn : Response
+        private void InitializeWithoutValidations<RTIn>(RTIn response, T value) where RTIn : Response
         {
             _response = response;
             _value = value;
@@ -56,14 +56,14 @@ namespace AzCoreTools.Core
                 Succeeded = ResponseValidator.ResponseSucceeded<Response>(_response);
         }
 
-        protected virtual void Initialize<TIn>(TIn response, T value) where TIn : Response
+        protected virtual void Initialize<RTIn>(RTIn response, T value) where RTIn : Response
         {
             ExThrower.ST_ThrowIfArgumentIsNull(response, nameof(response));
 
             InitializeWithoutValidations(response, value);
         }
 
-        protected virtual void Initialize<TIn>(TIn response) where TIn : Response<T>
+        protected virtual void Initialize<RTIn>(RTIn response) where RTIn : Response<T>
         {
             ExThrower.ST_ThrowIfArgumentIsNull(response, nameof(response));
 
@@ -77,7 +77,7 @@ namespace AzCoreTools.Core
 
         protected virtual void InitializeWithException<TEx>(TEx exception) where TEx : Exception
         {
-            AzCoreHelper.TryInitialize(exception, this, null);
+            AzCoreHelper.TryInitialize(exception, this);
         }
 
         protected virtual void Initialize<GenTSource, TSource>(TSource source, T value = default) where TSource : AzStorageResponse<GenTSource>, new()
@@ -97,12 +97,12 @@ namespace AzCoreTools.Core
             return new TOut();
         }
 
-        public static AzStorageResponse<T> Create<TIn>(TIn response, T value) where TIn : Response
+        public static AzStorageResponse<T> Create<RTIn>(RTIn response, T value) where RTIn : Response
         {
-            return Create<TIn, AzStorageResponse<T>>(response, value);
+            return Create<RTIn, AzStorageResponse<T>>(response, value);
         }
 
-        public static TOut Create<TIn, TOut>(TIn response, T value) where TIn : Response where TOut : AzStorageResponse<T>, new()
+        public static TOut Create<RTIn, TOut>(RTIn response, T value) where RTIn : Response where TOut : AzStorageResponse<T>, new()
         {
             var result = CreateNew<TOut>();
             result.Initialize(response, value);
@@ -110,12 +110,12 @@ namespace AzCoreTools.Core
             return result;
         }
 
-        public static AzStorageResponse<T> Create<TIn>(TIn response) where TIn : Response<T>
+        public static AzStorageResponse<T> Create<RTIn>(RTIn response) where RTIn : Response<T>
         {
-            return Create<TIn, AzStorageResponse<T>>(response);
+            return Create<RTIn, AzStorageResponse<T>>(response);
         }
 
-        public static TOut Create<TIn, TOut>(TIn response) where TIn : Response<T> where TOut : AzStorageResponse<T>, new()
+        public static TOut Create<RTIn, TOut>(RTIn response) where RTIn : Response<T> where TOut : AzStorageResponse<T>, new()
         {
             var result = CreateNew<TOut>();
             result.Initialize(response);
@@ -161,7 +161,7 @@ namespace AzCoreTools.Core
 
         #endregion
 
-        #region Overridden
+        #region Abstract class implementation
 
         public override T Value
         {
@@ -214,9 +214,9 @@ namespace AzCoreTools.Core
     {
         protected Response _response;
 
-        public virtual bool Succeeded { get; protected internal set; }
-        public virtual Exception Exception { get; protected internal set; }
-        public virtual string Message { get; protected internal set; }
+        public virtual bool Succeeded { get; set; }
+        public virtual Exception Exception { get; set; }
+        public virtual string Message { get; set; }
 
         #region Constructors
 
@@ -231,7 +231,7 @@ namespace AzCoreTools.Core
 
         #region Initializers
 
-        internal void InitializeWithoutValidations<TIn>(TIn response) where TIn : Response
+        internal void InitializeWithoutValidations<RTIn>(RTIn response) where RTIn : Response
         {
             _response = response;
 
@@ -239,14 +239,14 @@ namespace AzCoreTools.Core
                 Succeeded =  ResponseValidator.ResponseSucceeded<Response>(_response);
         }
 
-        protected virtual void Initialize<TIn>(TIn response) where TIn : Response
+        protected virtual void Initialize<RTIn>(RTIn response) where RTIn : Response
         {
             ExThrower.ST_ThrowIfArgumentIsNull(response, nameof(response));
 
             InitializeWithoutValidations(response);
         }
 
-        protected virtual void Initialize<TIn, GenTIn>(TIn response) where TIn : Response<GenTIn>
+        protected virtual void Initialize<RTIn, GenTIn>(RTIn response) where RTIn : Response<GenTIn>
         {
             ExThrower.ST_ThrowIfArgumentIsNull(response, nameof(response));
 
@@ -255,7 +255,7 @@ namespace AzCoreTools.Core
 
         protected virtual void Initialize(Exception exception)
         {
-            AzCoreHelper.TryInitialize<bool>(exception, null, this);
+            AzCoreHelper.TryInitialize(exception, this);
         }
 
         protected internal virtual void Initialize<GenTSource, TSource>(TSource source) where TSource : AzStorageResponse<GenTSource>, new()
@@ -275,12 +275,12 @@ namespace AzCoreTools.Core
             return new TOut();
         }
 
-        public static AzStorageResponse Create<TIn>(TIn response) where TIn : Response
+        public static AzStorageResponse Create<RTIn>(RTIn response) where RTIn : Response
         {
             return Create(response);
         }
 
-        public static TOut Create<TIn, TOut>(TIn response) where TIn : Response where TOut : AzStorageResponse, new()
+        public static TOut Create<RTIn, TOut>(RTIn response) where RTIn : Response where TOut : AzStorageResponse, new()
         {
             var result = CreateNew<TOut>();
             result.Initialize(response);
@@ -288,15 +288,15 @@ namespace AzCoreTools.Core
             return result;
         }
 
-        public static AzStorageResponse Create1<TIn, GenTIn>(TIn response) where TIn : Response<GenTIn>
+        public static AzStorageResponse Create1<RTIn, GenTIn>(RTIn response) where RTIn : Response<GenTIn>
         {
-            return Create<TIn, GenTIn, AzStorageResponse>(response);
+            return Create<RTIn, GenTIn, AzStorageResponse>(response);
         }
 
-        public static TOut Create<TIn, GenTIn, TOut>(TIn response) where TIn : Response<GenTIn> where TOut : AzStorageResponse, new()
+        public static TOut Create<RTIn, GenTIn, TOut>(RTIn response) where RTIn : Response<GenTIn> where TOut : AzStorageResponse, new()
         {
             var result = CreateNew<TOut>();
-            result.Initialize<TIn, GenTIn>(response);
+            result.Initialize<RTIn, GenTIn>(response);
 
             return result;
         }
@@ -318,7 +318,7 @@ namespace AzCoreTools.Core
 
         #endregion
 
-        #region Overridden
+        #region Abstract class implementation
 
         public override int Status
         {
@@ -404,7 +404,7 @@ namespace AzCoreTools.Core
         private void ThrowIfInvalid_response()
         {
             if (_response == null)
-                ExThrower.ST_ThrowInvalidOperationException("Internal response is null");
+                ExThrower.ST_ThrowInvalidOperationException("Internal Response is null");
         }
     }
 }

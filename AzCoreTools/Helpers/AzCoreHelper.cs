@@ -1,6 +1,6 @@
 ﻿using AzCoreTools.Core;
 using Azure;
-using CoreTools.Throws;
+using AzCoreTools.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,6 +10,29 @@ namespace AzCoreTools.Helpers
 {
     public class AzCoreHelper
     {
+        internal static bool TryInitialize(
+            Exception exception,
+            IAzDetailedResponse azResponse)
+        {
+            return TryInitialize<Exception, IAzDetailedResponse>(exception, azResponse);
+        }
+
+        internal static bool TryInitialize<TEx, TResp>(
+            TEx exception,
+            TResp azResponse) where TEx : Exception where TResp : IAzDetailedResponse
+        {
+            if (azResponse == null)
+                return false;
+
+            azResponse.Exception = exception;
+            azResponse.Message = exception.GetDepthMessages();
+            azResponse.Succeeded = false;
+
+            return true;
+        }
+
+
+        [Obsolete("", true)]
         internal static bool TryInitialize<T>(
             Exception exception,
             AzStorageResponse<T> azStorageResp1,
@@ -20,6 +43,8 @@ namespace AzCoreTools.Helpers
                 azStorageResp1,
                 azStorageResp2);
         }
+
+        [Obsolete("", true)]
         internal static bool TryInitialize<T, TEx, TResp1, TResp2>(
             TEx exception,
             TResp1 azStorageResp1,

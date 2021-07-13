@@ -4,8 +4,7 @@ using System.Text;
 
 namespace AzCoreTools.Core.Interfaces
 {
-    public interface IAzResponse
+    public interface IAzCosmosResponse<T> : IAzDetailedResponse<T>
     {
-        bool Succeeded { get; set; }
     }
 }

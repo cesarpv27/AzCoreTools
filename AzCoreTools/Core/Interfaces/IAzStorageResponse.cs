@@ -4,9 +4,11 @@ using System.Text;
 
 namespace AzCoreTools.Core.Interfaces
 {
-    public interface IAzStorageResponse : IAzResponse
+    public interface IAzStorageResponse : IAzDetailedResponse
     {
-        Exception Exception { get; }
-        string Message { get; }
+    }
+
+    public interface IAzStorageResponse<T> : IAzDetailedResponse<T>
+    {
     }
 }
