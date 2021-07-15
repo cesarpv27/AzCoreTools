@@ -19,6 +19,17 @@ namespace AzCoreTools.Core
         public virtual Exception Exception { get; set; }
         public virtual string Message { get; set; }
 
+        /// <summary>
+        /// The content of the response
+        /// </summary>
+        public virtual T Value
+        {
+            get
+            {
+                return _value;
+            }
+        }
+
         #region Initializers
 
         private void InitializeWithoutValidations<RTIn>(RTIn response, T value) where RTIn : Response<T>
@@ -90,11 +101,14 @@ namespace AzCoreTools.Core
 
         #region Abstract class implementation
 
+        /// <summary>
+        /// The content of the response
+        /// </summary>
         public override T Resource
         {
             get
             {
-                return _value;
+                return Value;
             }
         }
 
