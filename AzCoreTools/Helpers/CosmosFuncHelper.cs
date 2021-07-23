@@ -47,6 +47,40 @@ namespace AzCoreTools.Helpers
 
         #endregion
 
+        #region Func execute - 3 params
+
+        public static TOut Execute<FTIn1, FTIn2, FTIn3, FTOut, TOut, GenTOut>(
+            Func<FTIn1, FTIn2, FTIn3, FTOut> func,
+            FTIn1 FTParam1, FTIn2 FTParam2, FTIn3 FTParam3)
+            where FTOut : Response<GenTOut> where TOut : AzCosmosResponse<GenTOut>, new()
+        {
+            return Execute<FTOut, TOut, GenTOut>(
+            func,
+            new dynamic[]
+            {
+                FTParam1,
+                FTParam2,
+                FTParam3
+            });
+        }
+
+        public static async Task<TOut> ExecuteAsync<FTIn1, FTIn2, FTIn3, FTOut, TOut, GenTOut>(
+            Func<FTIn1, FTIn2, FTIn3, Task<FTOut>> func,
+            FTIn1 FTParam1, FTIn2 FTParam2, FTIn3 FTParam3)
+            where FTOut : Response<GenTOut> where TOut : AzCosmosResponse<GenTOut>, new()
+        {
+            return await ExecuteAsync<FTOut, TOut, GenTOut>(
+            func,
+            new dynamic[]
+            {
+                FTParam1,
+                FTParam2,
+                FTParam3
+            });
+        }
+
+        #endregion
+        
         #region Func execute - 4 params
 
         public static TOut Execute<FTIn1, FTIn2, FTIn3, FTIn4, FTOut, TOut, GenTOut>(

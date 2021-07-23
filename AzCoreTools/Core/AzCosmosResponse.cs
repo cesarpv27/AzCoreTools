@@ -55,9 +55,22 @@ namespace AzCoreTools.Core
             Initialize(response, response.Resource);
         }
 
+        protected virtual void Initialize(T value)
+        {
+            InitializeWithoutValidations<Response<T>>(default, value);
+        }
+
         protected virtual void InitializeWithException<TEx>(TEx exception) where TEx : Exception
         {
             AzCoreHelper.TryInitialize(exception, this);
+        }
+
+        protected virtual void Initialize<GenT, RTSource>(RTSource source, T value = default) where RTSource : AzCosmosResponse<GenT>, new()
+        {
+            InitializeWithoutValidations<Response<T>>(default, value);
+            Succeeded = source.Succeeded;
+            Message = source.Message;
+            Exception = source.Exception;
         }
 
         #endregion
@@ -65,6 +78,11 @@ namespace AzCoreTools.Core
         #region Creators
 
         public static TOut CreateNew<TOut>() where TOut : AzCosmosResponse<T>, new()
+        {
+            return new TOut();
+        }
+        
+        public static TOut CreateNew<GenT, TOut>() where TOut : AzCosmosResponse<GenT>, new()
         {
             return new TOut();
         }
@@ -78,6 +96,22 @@ namespace AzCoreTools.Core
         {
             var result = CreateNew<TOut>();
             result.Initialize(response);
+
+            return result;
+        }
+
+        public static AzCosmosResponse<T> Create(T value, bool succeeded)
+        {
+            var result = Create<AzCosmosResponse<T>>(value);
+            result.Succeeded = succeeded;
+
+            return result;
+        }
+
+        public static TOut Create<TOut>(T value) where TOut : AzCosmosResponse<T>, new()
+        {
+            var result = CreateNew<TOut>();
+            result.Initialize(value);
 
             return result;
         }
@@ -176,6 +210,21 @@ namespace AzCoreTools.Core
         }
 
         #endregion
+
+        public virtual AzCosmosResponse<GenT> InduceResponse<GenT>(GenT value = default)
+        {
+            return InduceResponse<GenT, AzCosmosResponse<GenT>>(value);
+        }
+
+        public virtual TOut InduceResponse<GenT, TOut>(GenT value = default)
+            where TOut : AzCosmosResponse<GenT>, new()
+        {
+            var result = CreateNew<GenT, TOut>();
+
+            result.Initialize<T, AzCosmosResponse<T>>(this, value);
+
+            return result;
+        }
 
         private void ThrowIfInvalid_response()
         {

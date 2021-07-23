@@ -369,7 +369,7 @@ namespace AzCoreTools.Extensions
 
         public static AzStorageResponse<List<T>> QueryAll<T>(this TableClient tableClient,
             CancellationToken cancellationToken = default,
-            int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
+            int take = int.MaxValue) where T : class, ITableEntity, new()
         {
             return TakeFromPageable(FuncHelper.Execute<TableClient, int?, CancellationToken, AzStorageResponse<Pageable<T>>, AzStorageResponse<Pageable<T>>, Pageable<T>>(
                 PageableQueryAll<T>,

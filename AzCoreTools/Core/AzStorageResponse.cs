@@ -80,7 +80,7 @@ namespace AzCoreTools.Core
             AzCoreHelper.TryInitialize(exception, this);
         }
 
-        protected virtual void Initialize<GenTSource, TSource>(TSource source, T value = default) where TSource : AzStorageResponse<GenTSource>, new()
+        protected virtual void Initialize<GenT, RTSource>(RTSource source, T value = default) where RTSource : AzStorageResponse<GenT>, new()
         {
             InitializeWithoutValidations(source._response, value);
             Succeeded = source.Succeeded;
