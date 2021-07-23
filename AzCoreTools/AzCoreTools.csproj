@@ -4,15 +4,17 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Miscellaneous.AzCoreTools</PackageId>
-    <Version>2.0.0-beta</Version>
+    <Version>2.0.3-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Company>César Palomino Vila</Company>
     <Description>This project contains and accumulates some basic features aimed at the AZURE platform that can help to develop other applications.
+Miscellaneous.AzCoreTools nuget has been intended to works as scaffold to 'Az.Storage.Repositories' nuget.
 
 TargetFrameworks: netstandard2.0; net461</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/cesarpv27/AzCoreTools</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <RepositoryUrl>https://github.com/cesarpv27/AzCoreTools</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

@@ -15,8 +15,6 @@ namespace AzCoreTools.Extensions
     {
         #region Common
 
-        private static int? defaultMaxPerPage = null;
-
         private static AzCosmosResponse<List<T>> TakeFromFeedIteratorAndDispose<T>(
             AzCosmosResponse<FeedIterator<T>> response,
             int take)
@@ -66,8 +64,6 @@ namespace AzCoreTools.Extensions
             string continuationToken = null,
             QueryRequestOptions requestOptions = null)
         {
-            ExThrower.ST_ThrowIfArgumentIsNull(filter);
-
             return AzCosmosResponse<FeedIterator<T>>.Create(container.GetItemQueryIterator<T>(
                 filter,
                 continuationToken,
@@ -78,7 +74,7 @@ namespace AzCoreTools.Extensions
 
         #region ByPartitionKey
 
-        public static AzCosmosResponse<FeedIterator<T>> FeedIteratorByPartitionKey<T>(this Container container,
+        public static AzCosmosResponse<FeedIterator<T>> FeedIteratorQueryByPartitionKey<T>(this Container container,
             string continuationToken = null,
             QueryRequestOptions requestOptions = null)
         {
@@ -89,13 +85,13 @@ namespace AzCoreTools.Extensions
                 requestOptions);
         }
 
-        public static AzCosmosResponse<List<T>> ByPartitionKey<T>(this Container container,
+        public static AzCosmosResponse<List<T>> QueryByPartitionKey<T>(this Container container,
             string partitionKey,
             int take = ConstProvider.DefaultTake)
         {
             ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
             return TakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
-                FeedIteratorByPartitionKey<T>,
+                FeedIteratorQueryByPartitionKey<T>,
                 container,
                 default, 
                 new QueryRequestOptions

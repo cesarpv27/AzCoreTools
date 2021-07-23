@@ -47,6 +47,68 @@ namespace AzCoreTools.Helpers
 
         #endregion
 
+        #region Func execute - 1 param
+
+        public static TOut Execute<FTIn1, FTOut, TOut, GenTOut>(
+            Func<FTIn1, FTOut> func,
+            FTIn1 FTParam1)
+            where FTOut : Response<GenTOut> where TOut : AzCosmosResponse<GenTOut>, new()
+        {
+            return Execute<FTOut, TOut, GenTOut>(
+            func,
+            new dynamic[]
+            {
+                FTParam1
+            });
+        }
+
+        public static async Task<TOut> ExecuteAsync<FTIn1, FTOut, TOut, GenTOut>(
+            Func<FTIn1, Task<FTOut>> func,
+            FTIn1 FTParam1)
+            where FTOut : Response<GenTOut> where TOut : AzCosmosResponse<GenTOut>, new()
+        {
+            return await ExecuteAsync<FTOut, TOut, GenTOut>(
+            func,
+            new dynamic[]
+            {
+                FTParam1
+            });
+        }
+
+        #endregion
+        
+        #region Func execute - 2 params
+
+        public static TOut Execute<FTIn1, FTIn2, FTOut, TOut, GenTOut>(
+            Func<FTIn1, FTIn2, FTOut> func,
+            FTIn1 FTParam1, FTIn2 FTParam2)
+            where FTOut : Response<GenTOut> where TOut : AzCosmosResponse<GenTOut>, new()
+        {
+            return Execute<FTOut, TOut, GenTOut>(
+            func,
+            new dynamic[]
+            {
+                FTParam1,
+                FTParam2
+            });
+        }
+
+        public static async Task<TOut> ExecuteAsync<FTIn1, FTIn2, FTOut, TOut, GenTOut>(
+            Func<FTIn1, FTIn2, Task<FTOut>> func,
+            FTIn1 FTParam1, FTIn2 FTParam2)
+            where FTOut : Response<GenTOut> where TOut : AzCosmosResponse<GenTOut>, new()
+        {
+            return await ExecuteAsync<FTOut, TOut, GenTOut>(
+            func,
+            new dynamic[]
+            {
+                FTParam1,
+                FTParam2
+            });
+        }
+
+        #endregion
+
         #region Func execute - 3 params
 
         public static TOut Execute<FTIn1, FTIn2, FTIn3, FTOut, TOut, GenTOut>(
