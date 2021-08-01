@@ -43,6 +43,24 @@ namespace AzCoreTools.Extensions
             }
         }
 
+        private static AzCosmosResponse<IEnumerable<T>> LazyTakeFromFeedIteratorAndDispose<T>(
+            AzCosmosResponse<FeedIterator<T>> response,
+            int take)
+        {
+            try
+            {
+                if (!TakeFromFeedIteratorAndDispose_ValidateParams(response, take))
+                    return response.InduceResponse<IEnumerable<T>>();
+
+                return AzCosmosResponse<IEnumerable<T>>.Create(response.Value.GetLazyEnumerable(), true);
+            }
+            finally
+            {
+                if (response != null && response.Value != null)
+                    response.Value.Dispose();
+            }
+        }
+
         private static bool TakeFromFeedIteratorAndDispose_ValidateParams<TValue>(
             AzCosmosResponse<TValue> response,
             int take)
@@ -72,6 +90,48 @@ namespace AzCoreTools.Extensions
 
         #endregion
 
+        #region ByFilter
+
+        public static AzCosmosResponse<FeedIterator<T>> FeedIteratorQueryByFilter<T>(this Container container,
+            string filter,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = null)
+        {
+            return Query<T>(
+                container,
+                filter,
+                continuationToken,
+                requestOptions);
+        }
+
+        public static AzCosmosResponse<List<T>> QueryByFilter<T>(this Container container,
+            string filter,
+            int take = ConstProvider.DefaultTake)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(filter, nameof(filter), nameof(filter));
+            return TakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
+                FeedIteratorQueryByFilter<T>,
+                container,
+                filter,
+                default,
+                default), take);
+        }
+
+        public static AzCosmosResponse<IEnumerable<T>> LazyQueryByFilter<T>(this Container container,
+            string filter,
+            int take = ConstProvider.DefaultTake)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(filter, nameof(filter), nameof(filter));
+            return LazyTakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
+                FeedIteratorQueryByFilter<T>,
+                container,
+                filter,
+                default,
+                default), take);
+        }
+
+        #endregion
+
         #region ByPartitionKey
 
         public static AzCosmosResponse<FeedIterator<T>> FeedIteratorQueryByPartitionKey<T>(this Container container,
@@ -93,7 +153,23 @@ namespace AzCoreTools.Extensions
             return TakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
                 FeedIteratorQueryByPartitionKey<T>,
                 container,
-                default, 
+                default,
+                new QueryRequestOptions
+                {
+                    PartitionKey = new PartitionKey(partitionKey),
+                    MaxItemCount = -1
+                }), take);
+        }
+
+        public static AzCosmosResponse<IEnumerable<T>> LazyQueryByPartitionKey<T>(this Container container,
+            string partitionKey,
+            int take = ConstProvider.DefaultTake)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
+            return LazyTakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
+                FeedIteratorQueryByPartitionKey<T>,
+                container,
+                default,
                 new QueryRequestOptions
                 {
                     PartitionKey = new PartitionKey(partitionKey),
@@ -102,7 +178,7 @@ namespace AzCoreTools.Extensions
         }
 
         #endregion
-        
+
         #region QueryAll
 
         public static AzCosmosResponse<FeedIterator<T>> FeedIteratorQueryAll<T>(this Container container,
@@ -122,7 +198,17 @@ namespace AzCoreTools.Extensions
             return TakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
                 FeedIteratorQueryAll<T>,
                 container,
-                default, 
+                default,
+                default), take);
+        }
+        
+        public static AzCosmosResponse<IEnumerable<T>> LazyQueryAll<T>(this Container container,
+            int take = int.MaxValue)
+        {
+            return LazyTakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
+                FeedIteratorQueryAll<T>,
+                container,
+                default,
                 default), take);
         }
 
