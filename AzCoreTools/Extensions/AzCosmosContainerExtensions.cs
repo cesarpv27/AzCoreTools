@@ -87,6 +87,17 @@ namespace AzCoreTools.Extensions
                 continuationToken,
                 requestOptions), true);
         }
+        
+        private static AzCosmosResponse<FeedIterator<T>> Query<T>(Container container,
+            QueryDefinition queryDefinition,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = null)
+        {
+            return AzCosmosResponse<FeedIterator<T>>.Create(container.GetItemQueryIterator<T>(
+                queryDefinition,
+                continuationToken,
+                requestOptions), true);
+        }
 
         #endregion
 
@@ -132,6 +143,50 @@ namespace AzCoreTools.Extensions
 
         #endregion
 
+        #region ByQueryDefinition
+
+        public static AzCosmosResponse<FeedIterator<T>> FeedIteratorQueryByQueryDefinition<T>(this Container container,
+            QueryDefinition queryDefinition,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = null)
+        {
+            return Query<T>(
+                container,
+                queryDefinition,
+                continuationToken,
+                requestOptions);
+        }
+
+        public static AzCosmosResponse<List<T>> QueryByQueryDefinition<T>(this Container container,
+            QueryDefinition queryDefinition,
+            int take = ConstProvider.DefaultTake)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(queryDefinition, nameof(queryDefinition), nameof(queryDefinition));
+
+            return TakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, QueryDefinition, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
+                FeedIteratorQueryByQueryDefinition<T>,
+                container,
+                queryDefinition,
+                default,
+                default), take);
+        }
+
+        public static AzCosmosResponse<IEnumerable<T>> LazyQueryByQueryDefinition<T>(this Container container,
+            QueryDefinition queryDefinition,
+            int take = ConstProvider.DefaultTake)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(queryDefinition, nameof(queryDefinition), nameof(queryDefinition));
+
+            return LazyTakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, QueryDefinition, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
+                FeedIteratorQueryByQueryDefinition<T>,
+                container,
+                queryDefinition,
+                default,
+                default), take);
+        }
+
+        #endregion
+
         #region ByPartitionKey
 
         public static AzCosmosResponse<FeedIterator<T>> FeedIteratorQueryByPartitionKey<T>(this Container container,
@@ -140,7 +195,7 @@ namespace AzCoreTools.Extensions
         {
             return Query<T>(
                 container,
-                null,
+                default(string),
                 continuationToken,
                 requestOptions);
         }
@@ -187,7 +242,7 @@ namespace AzCoreTools.Extensions
         {
             return Query<T>(
                 container,
-                null,
+                default(string),
                 continuationToken,
                 requestOptions);
         }
