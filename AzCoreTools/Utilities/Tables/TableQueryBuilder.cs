@@ -27,7 +27,7 @@ namespace AzCoreTools.Utilities.Tables
             return AzTextingResources.TimestampName.GenerateFilterCondition(operation, value);
         }
 
-        internal static string GenerateFilterCondition(
+        public static string GenerateFilterCondition(
             string propName,
             QueryComparison operation, 
             string value)
@@ -134,7 +134,7 @@ namespace AzCoreTools.Utilities.Tables
                     formattedValue = string.Format(CurrentCulture, "'{0}'", value.Replace("'", "''"));
                     break;
             }
-            var testToDelete = string.Format(CurrentCulture, "{0} {1} {2}", propName, operation, formattedValue);
+
             return string.Format(CurrentCulture, "{0} {1} {2}", propName, operation, formattedValue);
         }
 
