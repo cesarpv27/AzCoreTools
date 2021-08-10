@@ -268,5 +268,110 @@ namespace AzCoreTools.Extensions
         }
 
         #endregion
+
+        #region Async
+
+        #region Common
+
+        private static async Task<AzCosmosResponse<List<T>>> TakeFromFeedIteratorAndDisposeAsync<T>(
+            AzCosmosResponse<FeedIterator<T>> response,
+            int take)
+        {
+            try
+            {
+                if (!TakeFromFeedIteratorAndDispose_ValidateParams(response, take))
+                    return response.InduceResponse<List<T>>();
+
+                var result = new List<T>(Math.Min(take, 1000));
+                var count = 0;
+                foreach (var item in await response.Value.GetEnumerableAsync(take))
+                {
+                    result.Add(item);
+
+                    if (++count >= take)
+                        return AzCosmosResponse<List<T>>.Create(result, true);
+                }
+
+                return AzCosmosResponse<List<T>>.Create(result, true);
+            }
+            finally
+            {
+                if (response != null && response.Value != null)
+                    response.Value.Dispose();
+            }
+        }
+
+        #endregion
+
+        #region ByFilter
+
+        public static async Task<AzCosmosResponse<List<T>>> QueryByFilterAsync<T>(this Container container,
+            string filter,
+            int take = ConstProvider.DefaultTake)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(filter, nameof(filter), nameof(filter));
+            return await TakeFromFeedIteratorAndDisposeAsync(CosmosFuncHelper.Execute<Container, string, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
+                FeedIteratorQueryByFilter<T>,
+                container,
+                filter,
+                default,
+                default), take);
+        }
+
+        #endregion
+
+        #region ByQueryDefinition
+
+        public static async Task<AzCosmosResponse<List<T>>> QueryByQueryDefinitionAsync<T>(this Container container,
+            QueryDefinition queryDefinition,
+            int take = ConstProvider.DefaultTake)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(queryDefinition, nameof(queryDefinition), nameof(queryDefinition));
+
+            return await TakeFromFeedIteratorAndDisposeAsync(CosmosFuncHelper.Execute<Container, QueryDefinition, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
+                FeedIteratorQueryByQueryDefinition<T>,
+                container,
+                queryDefinition,
+                default,
+                default), take);
+        }
+
+        #endregion
+
+        #region ByPartitionKey
+
+        public static async Task<AzCosmosResponse<List<T>>> QueryByPartitionKeyAsync<T>(this Container container,
+            string partitionKey,
+            int take = ConstProvider.DefaultTake)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
+            return await TakeFromFeedIteratorAndDisposeAsync(CosmosFuncHelper.Execute<Container, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
+                FeedIteratorQueryByPartitionKey<T>,
+                container,
+                default,
+                new QueryRequestOptions
+                {
+                    PartitionKey = new PartitionKey(partitionKey),
+                    MaxItemCount = -1
+                }), take);
+        }
+
+        #endregion
+
+        #region QueryAll
+
+        public static async Task<AzCosmosResponse<List<T>>> QueryAllAsync<T>(this Container container,
+            int take = int.MaxValue)
+        {
+            return await TakeFromFeedIteratorAndDisposeAsync(CosmosFuncHelper.Execute<Container, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
+                FeedIteratorQueryAll<T>,
+                container,
+                default,
+                default), take);
+        }
+
+        #endregion
+
+        #endregion
     }
 }

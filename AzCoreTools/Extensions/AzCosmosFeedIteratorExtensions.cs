@@ -50,5 +50,4 @@ namespace AzCoreTools.Extensions
             return items;
         }
     }
-
 }

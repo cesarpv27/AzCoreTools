@@ -4,7 +4,7 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Miscellaneous.AzCoreTools</PackageId>
-    <Version>2.0.10-beta</Version>
+    <Version>2.1.0-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Company>César Palomino Vila</Company>
     <Description>This project contains and accumulates some basic features aimed at the AZURE platform that can help to develop other applications.
@@ -21,7 +21,7 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageReference Include="Azure.Data.Tables" Version="12.1.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.20.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Miscellaneous.CoreTools" Version="1.0.0.9" />
+    <PackageReference Include="Miscellaneous.CoreTools" Version="1.0.1" />
   </ItemGroup>
 
 </Project>
