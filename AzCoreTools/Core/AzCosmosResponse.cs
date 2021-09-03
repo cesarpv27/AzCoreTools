@@ -40,7 +40,7 @@ namespace AzCoreTools.Core
             if (_response != null)
                 Succeeded = ResponseValidator.CosmosResponseSucceeded<Response<T>, T>(_response);
         }
-
+        
         protected virtual void Initialize<RTIn>(RTIn response, T value) where RTIn : Response<T>
         {
             ExThrower.ST_ThrowIfArgumentIsNull(response, nameof(response));
@@ -73,6 +73,13 @@ namespace AzCoreTools.Core
             Exception = source.Exception;
         }
 
+        protected virtual void Initialize(TransactionalBatchResponse response, T value)
+        {
+            InitializeWithoutValidations<Response<T>>(default, value);
+            Succeeded = response.IsSuccessStatusCode;
+            Message = response.ErrorMessage;
+        }
+
         #endregion
 
         #region Creators
@@ -96,6 +103,16 @@ namespace AzCoreTools.Core
         {
             var result = CreateNew<TOut>();
             result.Initialize(response);
+
+            return result;
+        }
+        
+        public static TOut CreateFromTransactionalBatchResponse<TBResp, TOut>(TBResp response) 
+            where TBResp : TransactionalBatchResponse
+            where TOut : AzCosmosResponse<IReadOnlyList<TransactionalBatchOperationResult>>, new()
+        {
+            var result = CreateNew<IReadOnlyList<TransactionalBatchOperationResult>, TOut>();
+            result.Initialize(response, response);
 
             return result;
         }
