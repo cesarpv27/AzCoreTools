@@ -49,18 +49,18 @@ namespace AzCoreTools.Helpers
             dynamic func,
             dynamic[] funcParams)
             where FTOut : TransactionalBatchResponse 
-            where TOut : AzCosmosResponse<IReadOnlyList<TransactionalBatchOperationResult>>, new()
+            where TOut : AzCosmosResponse<TransactionalBatchResponse>, new()
         {
             try
             {
                 FTOut funcResponse = await FuncHelper.ExecuteFuncAsync<FTOut>(func, funcParams);
 
-                return AzCosmosResponse<IReadOnlyList<TransactionalBatchOperationResult>>
+                return AzCosmosResponse<TransactionalBatchResponse>
                     .CreateFromTransactionalBatchResponse<FTOut, TOut>(funcResponse);
             }
             catch (Exception e)
             {
-                return AzCosmosResponse<IReadOnlyList<TransactionalBatchOperationResult>>.Create<TOut>(e);
+                return AzCosmosResponse<TransactionalBatchResponse>.Create<TOut>(e);
             }
         }
 
@@ -98,7 +98,7 @@ namespace AzCoreTools.Helpers
             Func<FTIn1, Task<FTOut>> func,
             FTIn1 FTParam1)
             where FTOut : TransactionalBatchResponse 
-            where TOut : AzCosmosResponse<IReadOnlyList<TransactionalBatchOperationResult>>, new()
+            where TOut : AzCosmosResponse<TransactionalBatchResponse>, new()
         {
             return await ExecuteTransactionalBatchAsync<FTOut, TOut>(
             func,

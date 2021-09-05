@@ -109,9 +109,9 @@ namespace AzCoreTools.Core
         
         public static TOut CreateFromTransactionalBatchResponse<TBResp, TOut>(TBResp response) 
             where TBResp : TransactionalBatchResponse
-            where TOut : AzCosmosResponse<IReadOnlyList<TransactionalBatchOperationResult>>, new()
+            where TOut : AzCosmosResponse<TransactionalBatchResponse>, new()
         {
-            var result = CreateNew<IReadOnlyList<TransactionalBatchOperationResult>, TOut>();
+            var result = CreateNew<TransactionalBatchResponse, TOut>();
             result.Initialize(response, response);
 
             return result;
