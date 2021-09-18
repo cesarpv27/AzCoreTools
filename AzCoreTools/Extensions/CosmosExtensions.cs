@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using ExThrower = CoreTools.Throws.ExceptionThrower;
 
@@ -19,6 +20,36 @@ namespace AzCoreTools.Extensions
                 return null;
             return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(@this.Resource));
         }
+
+        #region Cosmos entity to custom type
+
+        public static List<AzCosmosResponse<List<T>>> DeserializeObjects<T>(
+            this List<AzCosmosResponse<List<string>>> @this)
+            where T : class
+        {
+            return @this.Select(ent => ent.DeserializeObjects<T>()).ToList();
+        }
+        
+        public static AzCosmosResponse<List<T>> DeserializeObjects<T>(
+            this AzCosmosResponse<List<string>> azCosmosResponse)
+            where T : class
+        {
+            if (!azCosmosResponse.Succeeded)
+                ExThrower.ST_ThrowInvalidOperationException($"{nameof(azCosmosResponse)} is not successful.");
+            if (azCosmosResponse.Value == null)
+                ExThrower.ST_ThrowInvalidOperationException($"{nameof(azCosmosResponse)} has null value.");
+
+            return azCosmosResponse.InduceResponse(azCosmosResponse.Value.DeserializeObjects<T>());
+        }
+
+        public static List<T> DeserializeObjects<T>(this List<string> @this) where T : class
+        {
+            return @this.Select(ent => JsonConvert.DeserializeObject<T>(ent)).ToList();
+        }
+
+        #endregion
+
+        #region Cosmos entity to string
 
         public static List<AzCosmosResponse<List<string>>> InduceResponsesToValueStrings(
             this List<AzCosmosResponse<TransactionalBatchResponse>> @this)
@@ -48,7 +79,7 @@ namespace AzCoreTools.Extensions
                 else
                     strList.Add(commonStr);
             }
-            
+
             return @this.InduceResponse(strList);
         }
 
@@ -70,11 +101,14 @@ namespace AzCoreTools.Extensions
         {
             if (@this.ResourceStream == default)
                 ExThrower.ST_ThrowInvalidOperationException($"Value of property '{nameof(@this.ResourceStream)}' is null");
-            
+
             using (StreamReader streamReader = new StreamReader(@this.ResourceStream))
             {
                 return streamReader.ReadToEndAsync().WaitAndUnwrapException();
             }
         }
+
+        #endregion
+
     }
 }
