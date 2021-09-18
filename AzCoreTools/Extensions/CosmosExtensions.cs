@@ -25,14 +25,12 @@ namespace AzCoreTools.Extensions
 
         public static List<AzCosmosResponse<List<T>>> DeserializeObjects<T>(
             this List<AzCosmosResponse<List<string>>> @this)
-            where T : class
         {
             return @this.Select(ent => ent.DeserializeObjects<T>()).ToList();
         }
         
         public static AzCosmosResponse<List<T>> DeserializeObjects<T>(
             this AzCosmosResponse<List<string>> azCosmosResponse)
-            where T : class
         {
             if (!azCosmosResponse.Succeeded)
                 ExThrower.ST_ThrowInvalidOperationException($"{nameof(azCosmosResponse)} is not successful.");
@@ -42,7 +40,7 @@ namespace AzCoreTools.Extensions
             return azCosmosResponse.InduceResponse(azCosmosResponse.Value.DeserializeObjects<T>());
         }
 
-        public static List<T> DeserializeObjects<T>(this List<string> @this) where T : class
+        public static List<T> DeserializeObjects<T>(this List<string> @this)
         {
             return @this.Select(ent => JsonConvert.DeserializeObject<T>(ent)).ToList();
         }
