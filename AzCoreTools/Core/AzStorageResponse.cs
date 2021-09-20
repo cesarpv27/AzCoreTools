@@ -67,7 +67,11 @@ namespace AzCoreTools.Core
         {
             ExThrower.ST_ThrowIfArgumentIsNull(response, nameof(response));
 
-            Initialize(response.GetRawResponse(), response.Value);
+            var rawResponse = response.GetRawResponse();
+            if (rawResponse != default)
+                Initialize(rawResponse, response.Value);
+            else
+                InitializeWithoutValidations(default(Response), response.Value);
         }
 
         protected virtual void Initialize(T value)
