@@ -4,7 +4,7 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Miscellaneous.AzCoreTools</PackageId>
-    <Version>2.4.1-beta</Version>
+    <Version>2.4.2-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Company>César Palomino Vila</Company>
     <Description>This project contains and accumulates some basic features aimed at the AZURE platform that can help to develop other applications.
@@ -15,15 +15,23 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageProjectUrl>https://github.com/cesarpv27/AzCoreTools</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/cesarpv27/AzCoreTools</RepositoryUrl>
-    <PackageReleaseNotes>Fixed Initialize&lt;RTIn&gt;(RTIn response) where RTIn : Response&lt;T&gt; method, when GetRawResponse() return null.
-Some cases GetRawResponse() method in Response&lt;T&gt; instance return null, aparently without associated pattern.</PackageReleaseNotes>
+    <PackageReleaseNotes>Dependencies updates:
+Azure.Core.1.16.0 -&gt; Azure.Core.1.19.0
+Azure.Data.Tables.12.1.0 -&gt; Azure.Data.Tables.12.2.0
+Microsoft.Azure.Cosmos.3.20.1 -&gt; Microsoft.Azure.Cosmos.3.21.0
+System.Configuration.ConfigurationManager.4.5.0 -&gt; System.Configuration.ConfigurationManager.4.7.0
+System.Security.AccessControl.4.5.0 -&gt; System.Security.AccessControl.4.7.0
+System.Security.Permissions.4.5.0 -&gt; System.Security.Permissions.4.7.0
+System.Security.Principal.Windows.4.5.0 -&gt; System.Security.Principal.Windows.4.7.0
+System.Security.Cryptography.ProtectedData.4.5.0 -&gt; System.Security.Cryptography.ProtectedData.4.7.0
+Miscellaneous.CoreTools.1.0.1 -&gt; Miscellaneous.CoreTools.1.1.0</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Data.Tables" Version="12.1.0" />
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.20.1" />
+    <PackageReference Include="Azure.Data.Tables" Version="12.2.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.21.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Miscellaneous.CoreTools" Version="1.0.1" />
+    <PackageReference Include="Miscellaneous.CoreTools" Version="1.1.0" />
   </ItemGroup>
 
 </Project>
