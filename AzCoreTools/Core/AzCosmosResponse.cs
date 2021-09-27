@@ -145,6 +145,34 @@ namespace AzCoreTools.Core
             return result;
         }
 
+        /// <summary>
+        /// Creates an unsuccessful response of type <see cref="AzCosmosResponse{T}"/>.
+        /// </summary>
+        /// <param name="message">Message of resulting <see cref="AzCosmosResponse{T}"/>.</param>
+        /// <returns>The <see cref="AzCosmosResponse{T}"/> indicating the result of the operation.</returns>
+        public static AzCosmosResponse<T> Create(string message)
+        {
+            return Create<AzCosmosResponse<T>>(message);
+        }
+
+        /// <summary>
+        /// Creates an unsuccessful response of type <typeparamref name="TOut"/>.
+        /// </summary>
+        /// <typeparam name="TOut">A custom model of type <see cref="AzCosmosResponse{T}"/>.</typeparam>
+        /// <param name="message">Message of resulting <typeparamref name="TOut"/>.</param>
+        /// <returns>The <typeparamref name="TOut"/> indicating the result of the operation.</returns>
+        public static TOut Create<TOut>(string message) 
+            where TOut : AzCosmosResponse<T>, new()
+        {
+            var result = CreateNew<TOut>();
+
+            result.InitializeWithoutValidations<Response<T>>(default, default);
+            result.Succeeded = false;
+            result.Message = message;
+
+            return result;
+        }
+
         public static TOut Create<TOut>(
             Exception exception,
             string messagePrefix = AzTextingResources.Exception_message) 

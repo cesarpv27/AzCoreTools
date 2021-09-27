@@ -160,6 +160,34 @@ namespace AzCoreTools.Core
             return result;
         }
 
+        /// <summary>
+        /// Creates an unsuccessful response of type <see cref="AzStorageResponse{T}"/>.
+        /// </summary>
+        /// <param name="message">Message of resulting <see cref="AzStorageResponse{T}"/>.</param>
+        /// <returns>The <see cref="AzStorageResponse{T}"/> indicating the result of the operation.</returns>
+        public static AzStorageResponse<T> Create(string message = default)
+        {
+            return Create<AzStorageResponse<T>>(message);
+        }
+
+        /// <summary>
+        /// Creates an unsuccessful response of type <typeparamref name="TOut"/>.
+        /// </summary>
+        /// <typeparam name="TOut">A custom model of type <see cref="AzStorageResponse{T}"/>.</typeparam>
+        /// <param name="message">Message of resulting <typeparamref name="TOut"/>.</param>
+        /// <returns>The <typeparamref name="TOut"/> indicating the result of the operation.</returns>
+        public static TOut Create<TOut>(string message = default) 
+            where TOut : AzStorageResponse<T>, new()
+        {
+            var result = CreateNew<TOut>();
+
+            result.InitializeWithoutValidations<Response>(default, default);
+            result.Succeeded = false;
+            result.Message = message;
+
+            return result;
+        }
+
         public static AzStorageResponse<T> Create(
             Exception exception, 
             string messagePrefix = AzTextingResources.Exception_message)
