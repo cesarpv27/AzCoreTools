@@ -122,18 +122,25 @@ namespace AzCoreTools.Core
             return result;
         }
 
-        public static AzCosmosResponse<T> Create(T value, bool succeeded)
+        public static AzCosmosResponse<T> Create(
+            T value,
+            bool succeeded,
+            string message = default)
         {
-            var result = Create<AzCosmosResponse<T>>(value);
-            result.Succeeded = succeeded;
-
-            return result;
+            return Create<AzCosmosResponse<T>>(value, succeeded, message);
         }
 
-        public static TOut Create<TOut>(T value) where TOut : AzCosmosResponse<T>, new()
+        public static TOut Create<TOut>(
+            T value,
+            bool succeeded,
+            string message = default) 
+            where TOut : AzCosmosResponse<T>, new()
         {
             var result = CreateNew<TOut>();
             result.Initialize(value);
+
+            result.Succeeded = succeeded;
+            result.Message = message;
 
             return result;
         }

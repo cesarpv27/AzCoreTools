@@ -106,6 +106,11 @@ namespace AzCoreTools.Core
             return new TOut();
         }
 
+        public static TOut CreateNew<GenT, TOut>() where TOut : AzStorageResponse<GenT>, new()
+        {
+            return new TOut();
+        }
+
         public static AzStorageResponse<T> Create<RTIn>(RTIn response, T value) where RTIn : Response
         {
             return Create<RTIn, AzStorageResponse<T>>(response, value);
@@ -132,23 +137,32 @@ namespace AzCoreTools.Core
             return result;
         }
 
-        public static AzStorageResponse<T> Create(T value, bool succeeded)
+        public static AzStorageResponse<T> Create(
+            T value, 
+            bool succeeded,
+            string message = default)
         {
-            var result = Create<AzStorageResponse<T>>(value);
-            result.Succeeded = succeeded;
-
-            return result;
+            return Create<AzStorageResponse<T>>(value, succeeded, message);
         }
 
-        public static TOut Create<TOut>(T value) where TOut : AzStorageResponse<T>, new()
+        public static TOut Create<TOut>(
+            T value, 
+            bool succeeded,
+            string message = default) 
+            where TOut : AzStorageResponse<T>, new()
         {
             var result = CreateNew<TOut>();
             result.Initialize(value);
 
+            result.Succeeded = succeeded;
+            result.Message = message;
+
             return result;
         }
 
-        public static AzStorageResponse<T> Create(Exception exception, string messagePrefix = default)
+        public static AzStorageResponse<T> Create(
+            Exception exception, 
+            string messagePrefix = AzTextingResources.Exception_message)
         {
             return Create<AzStorageResponse<T>>(exception, messagePrefix);
         }

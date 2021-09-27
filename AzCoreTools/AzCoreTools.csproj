@@ -4,7 +4,7 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Miscellaneous.AzCoreTools</PackageId>
-    <Version>2.5.0-beta</Version>
+    <Version>2.6.0-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Company>César Palomino Vila</Company>
     <Description>This project contains and accumulates some basic features aimed at the AZURE platform that can help to develop other applications.
@@ -15,7 +15,7 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageProjectUrl>https://github.com/cesarpv27/AzCoreTools</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/cesarpv27/AzCoreTools</RepositoryUrl>
-    <PackageReleaseNotes>New 'messagePrefix' parameter added when initialize responses with exception</PackageReleaseNotes>
+    <PackageReleaseNotes>Some 'Creator' methods has been modified, adding 'succeded' and 'message' parameters in AzStorageRespons and AzCosmosResponse generic classes.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
