@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using CoreTools.Extensions;
+using AzCoreTools.Texting;
 
 namespace AzCoreTools.Helpers
 {
@@ -12,20 +13,22 @@ namespace AzCoreTools.Helpers
     {
         internal static bool TryInitialize(
             Exception exception,
-            IAzDetailedResponse azResponse)
+            IAzDetailedResponse azResponse,
+            string messagePrefix = AzTextingResources.Exception_message)
         {
-            return TryInitialize<Exception, IAzDetailedResponse>(exception, azResponse);
+            return TryInitialize<Exception, IAzDetailedResponse>(exception, azResponse, messagePrefix);
         }
 
         internal static bool TryInitialize<TEx, TResp>(
             TEx exception,
-            TResp azResponse) where TEx : Exception where TResp : IAzDetailedResponse
+            TResp azResponse, 
+            string messagePrefix = AzTextingResources.Exception_message) where TEx : Exception where TResp : IAzDetailedResponse
         {
             if (azResponse == null)
                 return false;
 
             azResponse.Exception = exception;
-            azResponse.Message = exception.GetDepthMessages();
+            azResponse.Message = $"{messagePrefix}{exception.GetDepthMessages()}";
             azResponse.Succeeded = false;
 
             return true;

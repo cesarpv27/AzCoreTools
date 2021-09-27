@@ -1,6 +1,7 @@
 ﻿using AzCoreTools.Core.Interfaces;
 using AzCoreTools.Core.Validators;
 using AzCoreTools.Helpers;
+using AzCoreTools.Texting;
 using Azure;
 using Azure.Core;
 using System;
@@ -79,12 +80,16 @@ namespace AzCoreTools.Core
             InitializeWithoutValidations<Response>(default, value);
         }
 
-        protected virtual void InitializeWithException<TEx>(TEx exception) where TEx : Exception
+        protected virtual void InitializeWithException<TEx>(
+            TEx exception, 
+            string messagePrefix = AzTextingResources.Exception_message) 
+            where TEx : Exception
         {
-            AzCoreHelper.TryInitialize(exception, this);
+            AzCoreHelper.TryInitialize(exception, this, messagePrefix);
         }
 
-        protected virtual void Initialize<GenT, RTSource>(RTSource source, T value = default) where RTSource : AzStorageResponse<GenT>, new()
+        protected virtual void Initialize<GenT, RTSource>(RTSource source, T value = default) 
+            where RTSource : AzStorageResponse<GenT>, new()
         {
             InitializeWithoutValidations(source._response, value);
             Succeeded = source.Succeeded;
@@ -143,26 +148,33 @@ namespace AzCoreTools.Core
             return result;
         }
 
-        public static AzStorageResponse<T> Create(Exception exception)
+        public static AzStorageResponse<T> Create(Exception exception, string messagePrefix = default)
         {
-            return Create<AzStorageResponse<T>>(exception);
+            return Create<AzStorageResponse<T>>(exception, messagePrefix);
         }
 
-        public static TOut Create<TOut>(Exception exception) where TOut : AzStorageResponse<T>, new()
+        public static TOut Create<TOut>(
+            Exception exception, 
+            string messagePrefix = AzTextingResources.Exception_message) 
+            where TOut : AzStorageResponse<T>, new()
         {
-            return CreateWithException<Exception, TOut>(exception);
+            return CreateWithException<Exception, TOut>(exception, messagePrefix);
         }
         
-        public static TOut CreateWithException<TEx, TOut>(TEx exception) where TEx : Exception where TOut : AzStorageResponse<T>, new()
+        public static TOut CreateWithException<TEx, TOut>(
+            TEx exception, 
+            string messagePrefix = AzTextingResources.Exception_message) 
+            where TEx : Exception 
+            where TOut : AzStorageResponse<T>, new()
         {
             ExThrower.ST_ThrowIfArgumentIsNull(exception, nameof(exception));
             
             var result = CreateNew<TOut>();
-            result.InitializeWithException(exception);
+            result.InitializeWithException(exception, messagePrefix);
 
             return result;
         }
-
+        
         #endregion
 
         #region Abstract class implementation
@@ -257,9 +269,11 @@ namespace AzCoreTools.Core
             Initialize(response.GetRawResponse());
         }
 
-        protected virtual void Initialize(Exception exception)
+        protected virtual void Initialize(
+            Exception exception,
+            string messagePrefix = AzTextingResources.Exception_message)
         {
-            AzCoreHelper.TryInitialize(exception, this);
+            AzCoreHelper.TryInitialize(exception, this, messagePrefix);
         }
 
         protected internal virtual void Initialize<GenTSource, TSource>(TSource source) where TSource : AzStorageResponse<GenTSource>, new()
@@ -305,17 +319,22 @@ namespace AzCoreTools.Core
             return result;
         }
 
-        public static AzStorageResponse Create(Exception exception)
+        public static AzStorageResponse Create(
+            Exception exception,
+            string messagePrefix = AzTextingResources.Exception_message)
         {
-            return Create<AzStorageResponse>(exception);
+            return Create<AzStorageResponse>(exception, messagePrefix);
         }
 
-        public static TOut Create<TOut>(Exception exception) where TOut : AzStorageResponse, new()
+        public static TOut Create<TOut>(
+            Exception exception,
+            string messagePrefix = AzTextingResources.Exception_message) 
+            where TOut : AzStorageResponse, new()
         {
             ExThrower.ST_ThrowIfArgumentIsNull(exception, nameof(exception));
 
             var result = CreateNew<TOut>();
-            result.Initialize(exception);
+            result.Initialize(exception, messagePrefix);
 
             return result;
         }

@@ -7,6 +7,7 @@ using AzCoreTools.Core.Interfaces;
 using ExThrower = CoreTools.Throws.ExceptionThrower;
 using AzCoreTools.Helpers;
 using System.Net;
+using AzCoreTools.Texting;
 
 namespace AzCoreTools.Core
 {
@@ -60,12 +61,16 @@ namespace AzCoreTools.Core
             InitializeWithoutValidations<Response<T>>(default, value);
         }
 
-        protected virtual void InitializeWithException<TEx>(TEx exception) where TEx : Exception
+        protected virtual void InitializeWithException<TEx>(
+            TEx exception,
+            string messagePrefix = AzTextingResources.Exception_message) 
+            where TEx : Exception
         {
-            AzCoreHelper.TryInitialize(exception, this);
+            AzCoreHelper.TryInitialize(exception, this, messagePrefix);
         }
 
-        protected virtual void Initialize<GenT, RTSource>(RTSource source, T value = default) where RTSource : AzCosmosResponse<GenT>, new()
+        protected virtual void Initialize<GenT, RTSource>(RTSource source, T value = default) 
+            where RTSource : AzCosmosResponse<GenT>, new()
         {
             InitializeWithoutValidations<Response<T>>(default, value);
             Succeeded = source.Succeeded;
@@ -133,17 +138,24 @@ namespace AzCoreTools.Core
             return result;
         }
 
-        public static TOut Create<TOut>(Exception exception) where TOut : AzCosmosResponse<T>, new()
+        public static TOut Create<TOut>(
+            Exception exception,
+            string messagePrefix = AzTextingResources.Exception_message) 
+            where TOut : AzCosmosResponse<T>, new()
         {
-            return CreateWithException<Exception, TOut>(exception);
+            return CreateWithException<Exception, TOut>(exception, messagePrefix);
         }
 
-        public static TOut CreateWithException<TEx, TOut>(TEx exception) where TEx : Exception where TOut : AzCosmosResponse<T>, new()
+        public static TOut CreateWithException<TEx, TOut>(
+            TEx exception,
+            string messagePrefix = AzTextingResources.Exception_message) 
+            where TEx : Exception 
+            where TOut : AzCosmosResponse<T>, new()
         {
             ExThrower.ST_ThrowIfArgumentIsNull(exception, nameof(exception));
 
             var result = CreateNew<TOut>();
-            result.InitializeWithException(exception);
+            result.InitializeWithException(exception, messagePrefix);
 
             return result;
         }
