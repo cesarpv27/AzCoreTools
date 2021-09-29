@@ -381,6 +381,42 @@ namespace AzCoreTools.Core
             return result;
         }
 
+        /// <summary>
+        /// Creates an unsuccessful response of type <see cref="AzStorageResponse"/>.
+        /// </summary>
+        /// <param name="message">Message of resulting <see cref="AzStorageResponse"/>.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation.</returns>
+        public static AzStorageResponse Create(string message)
+        {
+            return Create<AzStorageResponse>(message);
+        }
+
+        /// <summary>
+        /// Creates an unsuccessful response of type <typeparamref name="TOut"/>.
+        /// </summary>
+        /// <typeparam name="TOut">A custom model of type <see cref="AzStorageResponse"/>.</typeparam>
+        /// <param name="message">Message of resulting <typeparamref name="TOut"/>.</param>
+        /// <returns>The <typeparamref name="TOut"/> indicating the result of the operation.</returns>
+        public static TOut Create<TOut>(string message)
+            where TOut : AzStorageResponse, new()
+        {
+            return Create<TOut>(false, message);
+        }
+
+        public static TOut Create<TOut>(
+            bool succeeded,
+            string message = default)
+            where TOut : AzStorageResponse, new()
+        {
+            var result = CreateNew<TOut>();
+            result.InitializeWithoutValidations<Response>(default);
+
+            result.Succeeded = succeeded;
+            result.Message = message;
+
+            return result;
+        }
+
         #endregion
 
         #region Abstract class implementation
