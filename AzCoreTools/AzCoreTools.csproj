@@ -4,7 +4,7 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Miscellaneous.AzCoreTools</PackageId>
-    <Version>2.9.0-beta</Version>
+    <Version>2.9.1-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Company>César Palomino Vila</Company>
     <Description>This project contains and accumulates some basic features aimed at the AZURE platform that can help to develop other applications.
@@ -15,7 +15,10 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageProjectUrl>https://github.com/cesarpv27/AzCoreTools</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/cesarpv27/AzCoreTools</RepositoryUrl>
-    <PackageReleaseNotes>v2.9.0
+    <PackageReleaseNotes>v2.9.1
+Method 'Create1' updated to 'CreateFromGenResponse' in AzStorageResponse class
+
+v2.9.0
 New 'InduceResponse' and 'Initialize' methods have been added in AzStorageResponse classes.
 
 v2.8.0

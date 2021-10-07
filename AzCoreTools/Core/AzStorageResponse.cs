@@ -356,7 +356,7 @@ namespace AzCoreTools.Core
             return result;
         }
 
-        public static AzStorageResponse Create1<RTIn, GenTIn>(RTIn response) where RTIn : Response<GenTIn>
+        public static AzStorageResponse CreateFromGenResponse<RTIn, GenTIn>(RTIn response) where RTIn : Response<GenTIn>
         {
             return Create<RTIn, GenTIn, AzStorageResponse>(response);
         }
