@@ -383,7 +383,8 @@ namespace AzCoreTools.Extensions
 
         #region ByPartitionKey
 
-        public static AzStorageResponse<AsyncPageable<T>> PageableQueryByPartitionKeyAsyncPageable<T>(this TableClient tableClient,
+        public static AzStorageResponse<AsyncPageable<T>> PageableQueryByPartitionKeyAsync<T>(
+            this TableClient tableClient,
             string partitionKey,
             int? maxPerPage = null,
             CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
@@ -395,13 +396,14 @@ namespace AzCoreTools.Extensions
                 cancellationToken);
         }
 
-        public static async Task<AzStorageResponse<List<T>>> QueryByPartitionKeyAsync<T>(this TableClient tableClient,
+        public static async Task<AzStorageResponse<List<T>>> QueryByPartitionKeyAsync<T>(
+            this TableClient tableClient,
             string partitionKey,
             CancellationToken cancellationToken = default,
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
             return await TakeFromPageableAsync(FuncHelper.Execute<TableClient, string, int?, CancellationToken, AzStorageResponse<AsyncPageable<T>>, AzStorageResponse<AsyncPageable<T>>, AsyncPageable<T>>(
-                PageableQueryByPartitionKeyAsyncPageable<T>,
+                PageableQueryByPartitionKeyAsync<T>,
                 tableClient,
                 partitionKey,
                 defaultMaxPerPage, cancellationToken), take);

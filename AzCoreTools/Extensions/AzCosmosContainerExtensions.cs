@@ -8,6 +8,7 @@ using CoreTools.Extensions;
 using ExThrower = CoreTools.Throws.ExceptionThrower;
 using AzCoreTools.Helpers;
 using AzCoreTools.Utilities;
+using System.Threading;
 
 namespace AzCoreTools.Extensions
 {
@@ -17,23 +18,35 @@ namespace AzCoreTools.Extensions
 
         private static AzCosmosResponse<List<T>> TakeFromFeedIteratorAndDispose<T>(
             AzCosmosResponse<FeedIterator<T>> response,
-            int take)
+            int take,
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                if (!TakeFromFeedIteratorAndDispose_ValidateParams(response, take))
+                if (!ValidateParamsForTakeFromFeedIteratorAndDispose(response, take))
                     return response.InduceResponse<List<T>>();
 
-                var result = new List<T>(Math.Min(take, 1000));
-                var count = 0;
-                foreach (var item in response.Value.GetLazyEnumerable())
-                {
-                    result.Add(item);
+                var result = response.Value.GetEnumerable(take, cancellationToken);
+                return AzCosmosResponse<List<T>>.Create(result, true);
+            }
+            finally
+            {
+                if (response != null && response.Value != null)
+                    response.Value.Dispose();
+            }
+        }
+        
+        private static async Task<AzCosmosResponse<List<T>>> TakeFromFeedIteratorAndDisposeAsync<T>(
+            AzCosmosResponse<FeedIterator<T>> response,
+            int take,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (!ValidateParamsForTakeFromFeedIteratorAndDispose(response, take))
+                    return response.InduceResponse<List<T>>();
 
-                    if (++count >= take)
-                        return AzCosmosResponse<List<T>>.Create(result, true);
-                }
-
+                var result = await response.Value.GetEnumerableAsync(take, cancellationToken);
                 return AzCosmosResponse<List<T>>.Create(result, true);
             }
             finally
@@ -43,16 +56,47 @@ namespace AzCoreTools.Extensions
             }
         }
 
+        //private static async Task<AzCosmosResponse<List<T>>> TakeFromFeedIteratorAndDisposeAsync<T>(
+        //    AzCosmosResponse<FeedIterator<T>> response,
+        //    int take)
+        //{
+        //    try
+        //    {
+        //        if (!ValidateParamsForTakeFromFeedIteratorAndDispose(response, take))
+        //            return response.InduceResponse<List<T>>();
+
+        //        var result = new List<T>(Math.Min(take, 1000));
+        //        var count = 0;
+        //        foreach (var item in await response.Value.GetEnumerableAsync(take))
+        //        {
+        //            result.Add(item);
+
+        //            if (++count >= take)
+        //                return AzCosmosResponse<List<T>>.Create(result, true);
+        //        }
+
+        //        return AzCosmosResponse<List<T>>.Create(result, true);
+        //    }
+        //    finally
+        //    {
+        //        if (response != null && response.Value != null)
+        //            response.Value.Dispose();
+        //    }
+        //}
+
         private static AzCosmosResponse<IEnumerable<T>> LazyTakeFromFeedIteratorAndDispose<T>(
             AzCosmosResponse<FeedIterator<T>> response,
-            int take)
+            int take,
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                if (!TakeFromFeedIteratorAndDispose_ValidateParams(response, take))
+                if (!ValidateParamsForTakeFromFeedIteratorAndDispose(response, take))
                     return response.InduceResponse<IEnumerable<T>>();
 
-                return AzCosmosResponse<IEnumerable<T>>.Create(response.Value.GetLazyEnumerable(), true);
+                return AzCosmosResponse<IEnumerable<T>>.Create(
+                    response.Value.GetLazyEnumerable(take, cancellationToken), 
+                    true);
             }
             finally
             {
@@ -61,7 +105,7 @@ namespace AzCoreTools.Extensions
             }
         }
 
-        private static bool TakeFromFeedIteratorAndDispose_ValidateParams<TValue>(
+        private static bool ValidateParamsForTakeFromFeedIteratorAndDispose<TValue>(
             AzCosmosResponse<TValue> response,
             int take)
         {
@@ -215,6 +259,23 @@ namespace AzCoreTools.Extensions
                     MaxItemCount = -1
                 }), take);
         }
+        
+        public static AzCosmosResponse<List<T>> QueryByPartitionKey<T>(this Container container,
+            string partitionKey,
+            string continuationToken = null,
+            int take = ConstProvider.DefaultTake)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
+            return TakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
+                FeedIteratorQueryByPartitionKey<T>,
+                container,
+                continuationToken,
+                new QueryRequestOptions
+                {
+                    PartitionKey = new PartitionKey(partitionKey),
+                    MaxItemCount = -1
+                }), take);
+        }
 
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryByPartitionKey<T>(this Container container,
             string partitionKey,
@@ -225,6 +286,23 @@ namespace AzCoreTools.Extensions
                 FeedIteratorQueryByPartitionKey<T>,
                 container,
                 default,
+                new QueryRequestOptions
+                {
+                    PartitionKey = new PartitionKey(partitionKey),
+                    MaxItemCount = -1
+                }), take);
+        }
+        
+        public static AzCosmosResponse<IEnumerable<T>> LazyQueryByPartitionKey<T>(this Container container,
+            string partitionKey,
+            string continuationToken = null,
+            int take = ConstProvider.DefaultTake)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
+            return LazyTakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
+                FeedIteratorQueryByPartitionKey<T>,
+                container,
+                continuationToken,
                 new QueryRequestOptions
                 {
                     PartitionKey = new PartitionKey(partitionKey),
@@ -254,7 +332,21 @@ namespace AzCoreTools.Extensions
                 FeedIteratorQueryAll<T>,
                 container,
                 default,
-                default), take);
+                default), 
+                take);
+        }
+        
+        public static AzCosmosResponse<List<T>> QueryAll<T>(this Container container,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = null,
+            int take = int.MaxValue)
+        {
+            return TakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
+                FeedIteratorQueryAll<T>,
+                container,
+                continuationToken,
+                requestOptions), 
+                take);
         }
         
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryAll<T>(this Container container,
@@ -264,50 +356,33 @@ namespace AzCoreTools.Extensions
                 FeedIteratorQueryAll<T>,
                 container,
                 default,
-                default), take);
+                default), 
+                take);
+        }
+        
+        public static AzCosmosResponse<IEnumerable<T>> LazyQueryAll<T>(this Container container,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = null,
+            int take = int.MaxValue)
+        {
+            return LazyTakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
+                FeedIteratorQueryAll<T>,
+                container,
+                continuationToken,
+                requestOptions), 
+                take);
         }
 
         #endregion
 
         #region Async
 
-        #region Common
-
-        private static async Task<AzCosmosResponse<List<T>>> TakeFromFeedIteratorAndDisposeAsync<T>(
-            AzCosmosResponse<FeedIterator<T>> response,
-            int take)
-        {
-            try
-            {
-                if (!TakeFromFeedIteratorAndDispose_ValidateParams(response, take))
-                    return response.InduceResponse<List<T>>();
-
-                var result = new List<T>(Math.Min(take, 1000));
-                var count = 0;
-                foreach (var item in await response.Value.GetEnumerableAsync(take))
-                {
-                    result.Add(item);
-
-                    if (++count >= take)
-                        return AzCosmosResponse<List<T>>.Create(result, true);
-                }
-
-                return AzCosmosResponse<List<T>>.Create(result, true);
-            }
-            finally
-            {
-                if (response != null && response.Value != null)
-                    response.Value.Dispose();
-            }
-        }
-
-        #endregion
-
         #region ByFilter
 
         public static async Task<AzCosmosResponse<List<T>>> QueryByFilterAsync<T>(this Container container,
             string filter,
-            int take = ConstProvider.DefaultTake)
+            int take = ConstProvider.DefaultTake,
+            CancellationToken cancellationToken = default)
         {
             ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(filter, nameof(filter), nameof(filter));
             return await TakeFromFeedIteratorAndDisposeAsync(CosmosFuncHelper.Execute<Container, string, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
@@ -315,7 +390,8 @@ namespace AzCoreTools.Extensions
                 container,
                 filter,
                 default,
-                default), take);
+                default), 
+                take, cancellationToken);
         }
 
         #endregion
