@@ -19,6 +19,7 @@ namespace AzCoreTools.Core
         public virtual bool Succeeded { get; set; }
         public virtual Exception Exception { get; set; }
         public virtual string Message { get; set; }
+        public virtual string ContinuationToken { get; set; }
 
         /// <summary>
         /// The content of the response
@@ -33,20 +34,29 @@ namespace AzCoreTools.Core
 
         #region Initializers
 
-        private void InitializeWithoutValidations<RTIn>(RTIn response, T value) where RTIn : Response<T>
+        private void InitializeWithoutValidations<RTIn>(
+            RTIn response, 
+            T value, 
+            string continuationToken = default) 
+            where RTIn : Response<T>
         {
             _response = response;
             _value = value;
+            ContinuationToken = continuationToken;
 
             if (_response != null)
                 Succeeded = ResponseValidator.CosmosResponseSucceeded<Response<T>, T>(_response);
         }
-        
-        protected virtual void Initialize<RTIn>(RTIn response, T value) where RTIn : Response<T>
+
+        protected virtual void Initialize<RTIn>(
+            RTIn response, 
+            T value, 
+            string continuationToken = default) 
+            where RTIn : Response<T>
         {
             ExThrower.ST_ThrowIfArgumentIsNull(response, nameof(response));
 
-            InitializeWithoutValidations(response, value);
+            InitializeWithoutValidations(response, value, continuationToken);
         }
 
         protected virtual void Initialize<RTIn>(RTIn response) where RTIn : Response<T>
@@ -56,9 +66,9 @@ namespace AzCoreTools.Core
             Initialize(response, response.Resource);
         }
 
-        protected virtual void Initialize(T value)
+        protected virtual void Initialize(T value, string continuationToken = default)
         {
-            InitializeWithoutValidations<Response<T>>(default, value);
+            InitializeWithoutValidations<Response<T>>(default, value, continuationToken);
         }
 
         protected virtual void InitializeWithException<TEx>(
@@ -99,15 +109,43 @@ namespace AzCoreTools.Core
             return new TOut();
         }
 
-        public static AzCosmosResponse<T> Create<RTIn>(RTIn response) where RTIn : Response<T>
+        public static AzCosmosResponse<T> Create<RTIn>(RTIn response) 
+            where RTIn : Response<T>
         {
             return Create<RTIn, AzCosmosResponse<T>>(response);
         }
 
-        public static TOut Create<RTIn, TOut>(RTIn response) where RTIn : Response<T> where TOut : AzCosmosResponse<T>, new()
+        public static TOut Create<RTIn, TOut>(RTIn response) 
+            where RTIn : Response<T> 
+            where TOut : AzCosmosResponse<T>, new()
         {
             var result = CreateNew<TOut>();
             result.Initialize(response);
+
+            return result;
+        }
+        
+        public static TOut Create<RTIn, TOut>(
+            RTIn response, 
+            T value, 
+            Func<RTIn, string> getContinuationToken) 
+            where RTIn : Response<T> 
+            where TOut : AzCosmosResponse<T>, new()
+        {
+            var result = CreateNew<TOut>();
+            result.Initialize(response, value, getContinuationToken(response));
+
+            return result;
+        }
+        
+        public static AzCosmosResponse<T> Create<RTIn>(
+            RTIn response, 
+            T value, 
+            Func<RTIn, string> getContinuationToken) 
+            where RTIn : Response<T> 
+        {
+            var result = CreateNew<AzCosmosResponse<T>>();
+            result.Initialize(response, value, getContinuationToken(response));
 
             return result;
         }
@@ -125,19 +163,21 @@ namespace AzCoreTools.Core
         public static AzCosmosResponse<T> Create(
             T value,
             bool succeeded,
-            string message = default)
+            string message = default,
+            string continuationToken = default)
         {
-            return Create<AzCosmosResponse<T>>(value, succeeded, message);
+            return Create<AzCosmosResponse<T>>(value, succeeded, message, continuationToken);
         }
 
         public static TOut Create<TOut>(
             T value,
             bool succeeded,
-            string message = default) 
+            string message = default, 
+            string continuationToken = default) 
             where TOut : AzCosmosResponse<T>, new()
         {
             var result = CreateNew<TOut>();
-            result.Initialize(value);
+            result.Initialize(value, continuationToken);
 
             result.Succeeded = succeeded;
             result.Message = message;
