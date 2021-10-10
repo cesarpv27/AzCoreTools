@@ -8,11 +8,11 @@ namespace AzCoreTools.Core.Interfaces
     {
         Exception Exception { get; set; }
         string Message { get; set; }
-        string ContinuationToken { get; set; }
     }
 
     public interface IAzDetailedResponse<T> : IAzDetailedResponse
     {
         T Value { get; }
+        string ContinuationToken { get; set; }
     }
 }
