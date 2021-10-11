@@ -389,6 +389,7 @@ namespace AzCoreTools.Extensions
             string partitionKey,
             int take = ConstProvider.DefaultTake,
             string continuationToken = default,
+            QueryRequestOptions requestOptions = default,
             CancellationToken cancellationToken = default)
         {
             ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
@@ -396,11 +397,7 @@ namespace AzCoreTools.Extensions
                 FeedIteratorQueryByPartitionKey<T>,
                 container,
                 continuationToken,
-                new QueryRequestOptions
-                {
-                    PartitionKey = new PartitionKey(partitionKey),
-                    MaxItemCount = -1
-                }), 
+                GetRequestOptionsForQueryByPartitionKey(requestOptions, partitionKey)), 
                 take, cancellationToken);
         }
 
