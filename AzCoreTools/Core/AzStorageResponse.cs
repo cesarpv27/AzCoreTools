@@ -20,7 +20,6 @@ namespace AzCoreTools.Core
         public virtual bool Succeeded { get; set; }
         public virtual Exception Exception { get; set; }
         public virtual string Message { get; set; }
-        public virtual string ContinuationToken { get; set; }
 
         #region Constructors
 

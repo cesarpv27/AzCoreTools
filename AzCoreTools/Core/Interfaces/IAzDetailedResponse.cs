@@ -13,6 +13,5 @@ namespace AzCoreTools.Core.Interfaces
     public interface IAzDetailedResponse<T> : IAzDetailedResponse
     {
         T Value { get; }
-        string ContinuationToken { get; set; }
     }
 }
