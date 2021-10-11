@@ -4,7 +4,7 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Miscellaneous.AzCoreTools</PackageId>
-    <Version>2.10.2-beta</Version>
+    <Version>2.10.4-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Company>César Palomino Vila</Company>
     <Description>This project contains and accumulates some basic features aimed at the AZURE platform that can help to develop other applications.
@@ -15,7 +15,13 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageProjectUrl>https://github.com/cesarpv27/AzCoreTools</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/cesarpv27/AzCoreTools</RepositoryUrl>
-    <PackageReleaseNotes>v2.10.2
+    <PackageReleaseNotes>v2.10.4
+Fixed bug of GetEnumerable and GetEnumerableAsync methods in class AzCosmosFeedIteratorExtensions when parameter 'take'  exceeded supported range of array dimensions.
+
+v2.10.3
+Modified methods Execute, ExecuteAsync and ExecuteTransactionalBatchAsync of CosmosFuncHelper class to identify the retorned value of func and return it if is equel to TOut generic parameter.
+
+v2.10.2
 Added parameter of type QueryRequestOptions in methods QueryByPartitionKeyAsync in AzCosmosContainerExtensions class.
 
 v2.10.1
