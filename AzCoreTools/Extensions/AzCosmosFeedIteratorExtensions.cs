@@ -1,9 +1,12 @@
 ﻿using AzCoreTools.Core;
+using AzCoreTools.Texting;
 using CoreTools.Extensions;
 using Microsoft.Azure.Cosmos;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ExThrower = CoreTools.Throws.ExceptionThrower;
 
 namespace AzCoreTools.Extensions
 {
@@ -16,7 +19,11 @@ namespace AzCoreTools.Extensions
             int take,
             CancellationToken cancellationToken = default)
         {
-            var items = new List<T>(take);
+            if (take <= 0)
+                ExThrower.ST_ThrowArgumentOutOfRangeException(nameof(take), 
+                    AzTextingResources.Param_must_be_grather_than_zero(nameof(take)));
+
+            var items = new List<T>(Math.Min(take, 1000));
 
             var count = 0;
             FeedResponse<T> _feedResponse = null;
