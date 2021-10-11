@@ -4,7 +4,7 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Miscellaneous.AzCoreTools</PackageId>
-    <Version>2.10.0-beta</Version>
+    <Version>2.10.1-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Company>César Palomino Vila</Company>
     <Description>This project contains and accumulates some basic features aimed at the AZURE platform that can help to develop other applications.
@@ -15,7 +15,10 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageProjectUrl>https://github.com/cesarpv27/AzCoreTools</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/cesarpv27/AzCoreTools</RepositoryUrl>
-    <PackageReleaseNotes>v.2.10.0
+    <PackageReleaseNotes>v2.10.1
+Added parameter of type QueryRequestOptions in methods QueryByPartitionKey and LazyQueryByPartitionKey in AzCosmosContainerExtensions class.
+
+v.2.10.0
 Methods in AzCosmosContainerExtensions and AzCosmosFeedIteratorExtensions classes have been updated to allow parameters for continuation token, cancellation token and QueryRequestOptions.
 The ContinuationToken property has been added in generic class AzCosmosResponse and the corresponding scaffold methods.
 

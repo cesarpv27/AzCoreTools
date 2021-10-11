@@ -241,7 +241,8 @@ namespace AzCoreTools.Extensions
             this Container container,
             string partitionKey,
             int take = ConstProvider.DefaultTake,
-            string continuationToken = null,
+            string continuationToken = default,
+            QueryRequestOptions requestOptions = default,
             CancellationToken cancellationToken = default)
         {
             ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
@@ -249,11 +250,7 @@ namespace AzCoreTools.Extensions
                 FeedIteratorQueryByPartitionKey<T>,
                 container,
                 continuationToken,
-                new QueryRequestOptions
-                {
-                    PartitionKey = new PartitionKey(partitionKey),
-                    MaxItemCount = -1
-                }), 
+                GetRequestOptionsForQueryByPartitionKey(requestOptions, partitionKey)),
                 take, cancellationToken);
         }
         
@@ -261,7 +258,8 @@ namespace AzCoreTools.Extensions
             this Container container,
             string partitionKey,
             int take = ConstProvider.DefaultTake,
-            string continuationToken = null,
+            string continuationToken = default,
+            QueryRequestOptions requestOptions = default,
             CancellationToken cancellationToken = default)
         {
             ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
@@ -269,14 +267,26 @@ namespace AzCoreTools.Extensions
                 FeedIteratorQueryByPartitionKey<T>,
                 container,
                 continuationToken,
-                new QueryRequestOptions
-                {
-                    PartitionKey = new PartitionKey(partitionKey),
-                    MaxItemCount = -1
-                }), 
+                GetRequestOptionsForQueryByPartitionKey(requestOptions, partitionKey)), 
                 take, cancellationToken);
         }
         
+        private static QueryRequestOptions GetRequestOptionsForQueryByPartitionKey(
+            QueryRequestOptions requestOptions,
+            string partitionKey)
+        {
+            if (requestOptions == default)
+                return new QueryRequestOptions
+                {
+                    PartitionKey = new PartitionKey(partitionKey),
+                    MaxItemCount = -1
+                };
+            else
+                requestOptions.PartitionKey = new PartitionKey(partitionKey);
+
+            return requestOptions;
+        }
+
         #endregion
 
         #region QueryAll
