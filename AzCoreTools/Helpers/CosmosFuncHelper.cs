@@ -14,11 +14,14 @@ namespace AzCoreTools.Helpers
         private static TOut Execute<FTOut, TOut, GenTOut>(
             dynamic func,
             dynamic[] funcParams)
-            where FTOut : Response<GenTOut> where TOut : AzCosmosResponse<GenTOut>, new()
+            where FTOut : Response<GenTOut> 
+            where TOut : AzCosmosResponse<GenTOut>, new()
         {
             try
             {
                 FTOut funcResponse = FuncHelper.ExecuteFunc<FTOut>(func, funcParams);
+                if (funcResponse is TOut TOutResp)
+                    return TOutResp;
 
                 return AzCosmosResponse<GenTOut>.Create<FTOut, TOut>(funcResponse);
             }
@@ -31,11 +34,14 @@ namespace AzCoreTools.Helpers
         private static async Task<TOut> ExecuteAsync<FTOut, TOut, GenTOut>(
             dynamic func,
             dynamic[] funcParams)
-            where FTOut : Response<GenTOut> where TOut : AzCosmosResponse<GenTOut>, new()
+            where FTOut : Response<GenTOut> 
+            where TOut : AzCosmosResponse<GenTOut>, new()
         {
             try
             {
                 FTOut funcResponse = await FuncHelper.ExecuteFuncAsync<FTOut>(func, funcParams);
+                if (funcResponse is TOut TOutResp)
+                    return TOutResp;
 
                 return AzCosmosResponse<GenTOut>.Create<FTOut, TOut>(funcResponse);
             }
@@ -54,6 +60,8 @@ namespace AzCoreTools.Helpers
             try
             {
                 FTOut funcResponse = await FuncHelper.ExecuteFuncAsync<FTOut>(func, funcParams);
+                if (funcResponse is TOut TOutResp)
+                    return TOutResp;
 
                 return AzCosmosResponse<TransactionalBatchResponse>
                     .CreateFromTransactionalBatchResponse<FTOut, TOut>(funcResponse);
