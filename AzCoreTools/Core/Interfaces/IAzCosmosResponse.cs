@@ -6,5 +6,6 @@ namespace AzCoreTools.Core.Interfaces
 {
     public interface IAzCosmosResponse<T> : IAzDetailedResponse<T>
     {
+        string ContinuationToken { get; set; }
     }
 }
