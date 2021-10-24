@@ -4,7 +4,7 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Miscellaneous.AzCoreTools</PackageId>
-    <Version>2.10.5-beta</Version>
+    <Version>3.0.0-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Company>César Palomino Vila</Company>
     <Description>This project contains and accumulates some basic features aimed at the AZURE platform that can help to develop other applications.
@@ -15,7 +15,16 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageProjectUrl>https://github.com/cesarpv27/AzCoreTools</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/cesarpv27/AzCoreTools</RepositoryUrl>
-    <PackageReleaseNotes>v2.10.5
+    <PackageReleaseNotes>v3.0.0
+The first steps of class 'AzBlobServiceClientExtensions' has been implemented, containing scaffolding methods to perform operations with azure storage blobs.
+
+Installed dependencies:
+Azure.Storage.Blobs.12.10.0
+Azure.Storage.Common.12.9.0
+
+To better understand and avoid confusion, all the methods in the class 'AzTableClientExtensions' with the response 'AzStorageResponse &lt;AsyncPageable&lt;T&gt;&gt;' have been renamed starting with the text 'AsynPageable' and continuing with the main text. The above methods in the class 'AzTableClientExtensions' that ends with the text 'AsyncPageable' have been declared obsolete.
+
+v2.10.5
 ContinuationToken property has been restricted only for the generic IAzCosmosResponse interface, in correspondence with azure storage service.
 
 v2.10.4
@@ -46,6 +55,7 @@ New 'Create' methods has been added in AzStorageResponse class.</PackageReleaseN
 
   <ItemGroup>
     <PackageReference Include="Azure.Data.Tables" Version="12.2.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.21.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Miscellaneous.CoreTools" Version="1.1.0" />

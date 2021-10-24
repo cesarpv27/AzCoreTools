@@ -25,67 +25,14 @@ namespace AzCoreTools.Extensions
             AzStorageResponse<Pageable<T>> response,
             int take)
         {
-            if (!TakeFromPageable_ValidateParams(response, take))
-                return response.InduceResponse<List<T>>();
-
-            var result = new List<T>(Math.Min(take, 1000));
-            var count = 0;
-            foreach (var item in response.Value)
-            {
-                result.Add(item);
-
-                if (++count >= take)
-                    return AzStorageResponse<List<T>>.Create(result, true);
-            }
-
-            return AzStorageResponse<List<T>>.Create(result, true);
+            return AzExtensionTools.TakeFromPageable(response, take);
         }
 
         private static async Task<AzStorageResponse<List<T>>> TakeFromPageableAsync<T>(
             AzStorageResponse<AsyncPageable<T>> response,
             int take)
         {
-            if (!TakeFromPageable_ValidateParams(response, take))
-                return response.InduceResponse<List<T>>();
-
-            var result = new List<T>(Math.Min(take, 1000));
-            var count = 0;
-
-            var enumerator = response.Value.GetAsyncEnumerator();
-            try
-            {
-                while (await enumerator.MoveNextAsync())
-                {
-                    result.Add(enumerator.Current);
-
-                    if (++count >= take)
-                        return AzStorageResponse<List<T>>.Create(result, true);
-                }
-            }
-            finally
-            {
-                await enumerator.DisposeAsync();
-            }
-            // TODO: In C# 8.0
-            //await foreach (var item in response.Value) { ... }
-
-            return AzStorageResponse<List<T>>.Create(result, true);
-        }
-
-        private static bool TakeFromPageable_ValidateParams<TValue>(
-            AzStorageResponse<TValue> response,
-            int take)
-        {
-            ExThrower.ST_ThrowIfArgumentIsNull(response, nameof(response));
-            if (take <= 0)
-                ExThrower.ST_ThrowArgumentException($"'{nameof(take)}' must be greater than zero");
-
-            if (!response.Succeeded)
-                return false;
-
-            ExThrower.ST_ThrowIfArgumentIsNull(response.Value, nameof(response), "response.Value is null");
-
-            return true;
+            return await AzExtensionTools.TakeFromPageableAsync(response, take);
         }
 
         private static AzStorageResponse<Pageable<T>> Query<T>(TableClient tableClient, 
@@ -101,7 +48,7 @@ namespace AzCoreTools.Extensions
                 cancellationToken: cancellationToken), true);
         }
 
-        private static AzStorageResponse<AsyncPageable<T>> QueryAsyncPageable<T>(TableClient tableClient,
+        private static AzStorageResponse<AsyncPageable<T>> QueryAsync<T>(TableClient tableClient,
             string filter,
             int? maxPerPage = null,
             CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
@@ -383,15 +330,29 @@ namespace AzCoreTools.Extensions
 
         #region ByPartitionKey
 
+        public static AzStorageResponse<AsyncPageable<T>> AsyncPageableQueryByPartitionKey<T>(
+            this TableClient tableClient,
+            string partitionKey,
+            int? maxPerPage = null,
+            CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
+        {
+            return QueryAsync<T>(
+                tableClient,
+                TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.eq, partitionKey).ToString(),
+                maxPerPage,
+                cancellationToken);
+        }
+
+        [Obsolete("Should use the method 'AsyncPageableQueryByPartitionKey' instead. This method will be marked as error in future versions.", false)]
         public static AzStorageResponse<AsyncPageable<T>> PageableQueryByPartitionKeyAsync<T>(
             this TableClient tableClient,
             string partitionKey,
             int? maxPerPage = null,
             CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
         {
-            return QueryAsyncPageable<T>(
+            return AsyncPageableQueryByPartitionKey<T>(
                 tableClient,
-                TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.eq, partitionKey).ToString(),
+                partitionKey,
                 maxPerPage,
                 cancellationToken);
         }
@@ -403,7 +364,7 @@ namespace AzCoreTools.Extensions
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
             return await TakeFromPageableAsync(FuncHelper.Execute<TableClient, string, int?, CancellationToken, AzStorageResponse<AsyncPageable<T>>, AzStorageResponse<AsyncPageable<T>>, AsyncPageable<T>>(
-                PageableQueryByPartitionKeyAsync<T>,
+                AsyncPageableQueryByPartitionKey<T>,
                 tableClient,
                 partitionKey,
                 defaultMaxPerPage, cancellationToken), take);
@@ -413,15 +374,28 @@ namespace AzCoreTools.Extensions
 
         #region ByPartitionKeyStartPattern
 
+        public static AzStorageResponse<AsyncPageable<T>> AsyncPageableQueryByPartitionKeyStartPattern<T>(this TableClient tableClient,
+            string startPattern,
+            int? maxPerPage = null,
+            CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
+        {
+            return QueryAsync<T>(
+                tableClient,
+                TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.ge, startPattern)
+                .And(TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.lt, startPattern.AddLastChar())).ToString(),
+                maxPerPage,
+                cancellationToken);
+        }
+        
+        [Obsolete("Should use the method 'AsyncPageableQueryByPartitionKeyStartPattern' instead. This method will be marked as error in future versions.", false)]
         public static AzStorageResponse<AsyncPageable<T>> PageableQueryByPartitionKeyStartPatternAsyncPageable<T>(this TableClient tableClient,
             string startPattern,
             int? maxPerPage = null,
             CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
         {
-            return QueryAsyncPageable<T>(
+            return AsyncPageableQueryByPartitionKeyStartPattern<T>(
                 tableClient,
-                TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.ge, startPattern)
-                .And(TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.lt, startPattern.AddLastChar())).ToString(),
+                startPattern,
                 maxPerPage,
                 cancellationToken);
         }
@@ -432,7 +406,7 @@ namespace AzCoreTools.Extensions
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
             return await TakeFromPageableAsync(FuncHelper.Execute<TableClient, string, int?, CancellationToken, AzStorageResponse<AsyncPageable<T>>, AzStorageResponse<AsyncPageable<T>>, AsyncPageable<T>>(
-                PageableQueryByPartitionKeyStartPatternAsyncPageable<T>,
+                AsyncPageableQueryByPartitionKeyStartPattern<T>,
                 tableClient,
                 startPattern,
                 defaultMaxPerPage, cancellationToken), take);
@@ -442,16 +416,29 @@ namespace AzCoreTools.Extensions
 
         #region ByPartitionKeyRowKey
 
+        public static AzStorageResponse<AsyncPageable<T>> AsyncPageableQueryByPartitionKeyRowKey<T>(this TableClient tableClient,
+            string partitionKey,
+            string rowKey,
+            CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
+        {
+            return QueryAsync<T>(
+                tableClient,
+                TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.eq, partitionKey)
+                .And(TableQueryBuilder.GenerateRowKeyFilterCondition(QueryComparison.eq, rowKey)).ToString(),
+                defaultMaxPerPage,
+                cancellationToken);
+        }
+        
+        [Obsolete("Should use the method 'AsyncPageableQueryByPartitionKeyRowKey' instead. This method will be marked as error in future versions.", false)]
         public static AzStorageResponse<AsyncPageable<T>> PageableQueryByPartitionKeyRowKeyAsyncPageable<T>(this TableClient tableClient,
             string partitionKey,
             string rowKey,
             CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
         {
-            return QueryAsyncPageable<T>(
+            return AsyncPageableQueryByPartitionKeyRowKey<T>(
                 tableClient,
-                TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.eq, partitionKey)
-                .And(TableQueryBuilder.GenerateRowKeyFilterCondition(QueryComparison.eq, rowKey)).ToString(),
-                defaultMaxPerPage,
+                partitionKey,
+                rowKey,
                 cancellationToken);
         }
 
@@ -461,7 +448,7 @@ namespace AzCoreTools.Extensions
             CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
         {
             var innerResponse = await TakeFromPageableAsync(FuncHelper.Execute<TableClient, string, string, CancellationToken, AzStorageResponse<AsyncPageable<T>>, AzStorageResponse<AsyncPageable<T>>, AsyncPageable<T>>(
-                PageableQueryByPartitionKeyRowKeyAsyncPageable<T>,
+                AsyncPageableQueryByPartitionKeyRowKey<T>,
                 tableClient,
                 partitionKey,
                 rowKey,
@@ -484,19 +471,35 @@ namespace AzCoreTools.Extensions
 
         #region ByPartitionKeyRowKeyStartPattern
 
-        public static AzStorageResponse<AsyncPageable<T>> PageableQueryByPartitionKeyRowKeyStartPatternAsyncPageable<T>(this TableClient tableClient,
+        public static AzStorageResponse<AsyncPageable<T>> AsyncPageableQueryByPartitionKeyRowKeyStartPattern<T>(this TableClient tableClient,
             string partitionKey,
             string rowKeyStartPattern,
             int? maxPerPage = null,
             CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
         {
-            return QueryAsyncPageable<T>(
+            return QueryAsync<T>(
                 tableClient,
                 TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.eq, partitionKey)
                 .And(
                     TableQueryBuilder.GenerateRowKeyFilterCondition(QueryComparison.ge, rowKeyStartPattern)
                     .And(TableQueryBuilder.GenerateRowKeyFilterCondition(QueryComparison.lt, rowKeyStartPattern.AddLastChar())))
                 .ToString(),
+                maxPerPage,
+                cancellationToken);
+        }
+        
+        [Obsolete("Should use the method 'AsyncPageableQueryByPartitionKeyRowKeyStartPattern' instead. This method will be marked as error in future versions.", false)]
+        public static AzStorageResponse<AsyncPageable<T>> PageableQueryByPartitionKeyRowKeyStartPatternAsyncPageable<T>(
+            this TableClient tableClient,
+            string partitionKey,
+            string rowKeyStartPattern,
+            int? maxPerPage = null,
+            CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
+        {
+            return AsyncPageableQueryByPartitionKeyRowKeyStartPattern<T>(
+                tableClient,
+                partitionKey,
+                rowKeyStartPattern,
                 maxPerPage,
                 cancellationToken);
         }
@@ -508,7 +511,7 @@ namespace AzCoreTools.Extensions
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
             return await TakeFromPageableAsync(FuncHelper.Execute<TableClient, string, string, int?, CancellationToken, AzStorageResponse<AsyncPageable<T>>, AzStorageResponse<AsyncPageable<T>>, AsyncPageable<T>>(
-                PageableQueryByPartitionKeyRowKeyStartPatternAsyncPageable<T>,
+                AsyncPageableQueryByPartitionKeyRowKeyStartPattern<T>,
                 tableClient,
                 partitionKey,
                 rowKeyStartPattern,
@@ -519,13 +522,14 @@ namespace AzCoreTools.Extensions
 
         #region ByPartitionKeyStartPatternRowKeyStartPattern
 
-        public static AzStorageResponse<AsyncPageable<T>> PageableQueryByPartitionKeyStartPatternRowKeyStartPatternAsyncPageable<T>(this TableClient tableClient,
+        public static AzStorageResponse<AsyncPageable<T>> AsyncPageableQueryByPartitionKeyStartPatternRowKeyStartPattern<T>(
+            this TableClient tableClient,
             string partitionKeyStartPattern,
             string rowKeyStartPattern,
             int? maxPerPage = null,
             CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
         {
-            return QueryAsyncPageable<T>(
+            return QueryAsync<T>(
                 tableClient,
                 TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.ge, partitionKeyStartPattern)
                 .And(TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.lt, partitionKeyStartPattern.AddLastChar()))
@@ -535,15 +539,32 @@ namespace AzCoreTools.Extensions
                 maxPerPage,
                 cancellationToken);
         }
+        
+        [Obsolete("Should use the method 'AsyncPageableQueryByPartitionKeyStartPatternRowKeyStartPattern' instead. This method will be marked as error in future versions.", false)]
+        public static AzStorageResponse<AsyncPageable<T>> PageableQueryByPartitionKeyStartPatternRowKeyStartPatternAsyncPageable<T>(
+            this TableClient tableClient,
+            string partitionKeyStartPattern,
+            string rowKeyStartPattern,
+            int? maxPerPage = null,
+            CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
+        {
+            return AsyncPageableQueryByPartitionKeyStartPatternRowKeyStartPattern<T>(
+                tableClient,
+                partitionKeyStartPattern,
+                rowKeyStartPattern,
+                maxPerPage,
+                cancellationToken);
+        }
 
-        public static async Task<AzStorageResponse<List<T>>> QueryByPartitionKeyStartPatternRowKeyStartPatternAsync<T>(this TableClient tableClient,
+        public static async Task<AzStorageResponse<List<T>>> QueryByPartitionKeyStartPatternRowKeyStartPatternAsync<T>(
+            this TableClient tableClient,
             string partitionKeyStartPattern,
             string rowKeyStartPattern,
             CancellationToken cancellationToken = default,
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
             return await TakeFromPageableAsync(FuncHelper.Execute<TableClient, string, string, int?, CancellationToken, AzStorageResponse<AsyncPageable<T>>, AzStorageResponse<AsyncPageable<T>>, AsyncPageable<T>>(
-                PageableQueryByPartitionKeyStartPatternRowKeyStartPatternAsyncPageable<T>,
+                AsyncPageableQueryByPartitionKeyStartPatternRowKeyStartPattern<T>,
                 tableClient,
                 partitionKeyStartPattern,
                 rowKeyStartPattern,
@@ -554,16 +575,31 @@ namespace AzCoreTools.Extensions
 
         #region ByTimestamp
 
+        public static AzStorageResponse<AsyncPageable<T>> AsyncPageableQueryByTimestamp<T>(this TableClient tableClient,
+            DateTime timeStampFrom,
+            DateTime timeStampTo,
+            int? maxPerPage = null,
+            CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
+        {
+            return QueryAsync<T>(
+                tableClient,
+                TableQueryBuilder.GenerateTimestampFilterCondition(QueryComparison.ge, timeStampFrom)
+                .And(TableQueryBuilder.GenerateTimestampFilterCondition(QueryComparison.lt, timeStampTo.AddMilliseconds(1))).ToString(),
+                maxPerPage,
+                cancellationToken);
+        }
+        
+        [Obsolete("Should use the method 'AsyncPageableQueryByTimestamp' instead. This method will be marked as error in future versions.", false)]
         public static AzStorageResponse<AsyncPageable<T>> PageableQueryByTimestampAsyncPageable<T>(this TableClient tableClient,
             DateTime timeStampFrom,
             DateTime timeStampTo,
             int? maxPerPage = null,
             CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
         {
-            return QueryAsyncPageable<T>(
+            return AsyncPageableQueryByTimestamp<T>(
                 tableClient,
-                TableQueryBuilder.GenerateTimestampFilterCondition(QueryComparison.ge, timeStampFrom)
-                .And(TableQueryBuilder.GenerateTimestampFilterCondition(QueryComparison.lt, timeStampTo.AddMilliseconds(1))).ToString(),
+                timeStampFrom,
+                timeStampTo,
                 maxPerPage,
                 cancellationToken);
         }
@@ -575,7 +611,7 @@ namespace AzCoreTools.Extensions
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
             return await TakeFromPageableAsync(FuncHelper.Execute<TableClient, DateTime, DateTime, int?, CancellationToken, AzStorageResponse<AsyncPageable<T>>, AzStorageResponse<AsyncPageable<T>>, AsyncPageable<T>>(
-                PageableQueryByTimestampAsyncPageable<T>,
+                AsyncPageableQueryByTimestamp<T>,
                 tableClient,
                 timeStampFrom,
                 timeStampTo,
@@ -586,19 +622,37 @@ namespace AzCoreTools.Extensions
 
         #region ByPartitionKeyTimestamp
 
-        public static AzStorageResponse<AsyncPageable<T>> PageableQueryByPartitionKeyTimestampAsyncPageable<T>(this TableClient tableClient,
+        public static AzStorageResponse<AsyncPageable<T>> AsyncPageableQueryByPartitionKeyTimestamp<T>(this TableClient tableClient,
             string partitionKey,
             DateTime timeStampFrom,
             DateTime timeStampTo,
             int? maxPerPage = null,
             CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
         {
-            return QueryAsyncPageable<T>(
+            return QueryAsync<T>(
                 tableClient,
                 TableQueryBuilder.GeneratePartitionKeyFilterCondition(QueryComparison.eq, partitionKey)
                 .And(
                     TableQueryBuilder.GenerateTimestampFilterCondition(QueryComparison.ge, timeStampFrom)
                     .And(TableQueryBuilder.GenerateTimestampFilterCondition(QueryComparison.lt, timeStampTo.AddMilliseconds(1)))).ToString(),
+                maxPerPage,
+                cancellationToken);
+        }
+        
+        [Obsolete("Should use the method 'AsyncPageableQueryByPartitionKeyTimestamp' instead. This method will be marked as error in future versions.", false)]
+        public static AzStorageResponse<AsyncPageable<T>> PageableQueryByPartitionKeyTimestampAsyncPageable<T>(
+            this TableClient tableClient,
+            string partitionKey,
+            DateTime timeStampFrom,
+            DateTime timeStampTo,
+            int? maxPerPage = null,
+            CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
+        {
+            return AsyncPageableQueryByPartitionKeyTimestamp<T>(
+                tableClient,
+                partitionKey,
+                timeStampFrom,
+                timeStampTo, 
                 maxPerPage,
                 cancellationToken);
         }
@@ -611,7 +665,7 @@ namespace AzCoreTools.Extensions
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
             return await TakeFromPageableAsync(FuncHelper.Execute<TableClient, string, DateTime, DateTime, int?, CancellationToken, AzStorageResponse<AsyncPageable<T>>, AzStorageResponse<AsyncPageable<T>>, AsyncPageable<T>>(
-                PageableQueryByPartitionKeyTimestampAsyncPageable<T>,
+                AsyncPageableQueryByPartitionKeyTimestamp<T>,
                 tableClient,
                 partitionKey,
                 timeStampFrom,
@@ -623,13 +677,24 @@ namespace AzCoreTools.Extensions
 
         #region QueryAll
 
+        public static AzStorageResponse<AsyncPageable<T>> AsyncPageableQueryAll<T>(this TableClient tableClient,
+            int? maxPerPage = null,
+            CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
+        {
+            return QueryAsync<T>(
+                tableClient,
+                string.Empty,
+                maxPerPage,
+                cancellationToken);
+        }
+        
+        [Obsolete("Should use the method 'AsyncPageableQueryAll' instead. This method will be marked as error in future versions.", false)]
         public static AzStorageResponse<AsyncPageable<T>> PageableQueryAllAsyncPageable<T>(this TableClient tableClient,
             int? maxPerPage = null,
             CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
         {
-            return QueryAsyncPageable<T>(
+            return AsyncPageableQueryAll<T>(
                 tableClient,
-                string.Empty,
                 maxPerPage,
                 cancellationToken);
         }
@@ -639,7 +704,7 @@ namespace AzCoreTools.Extensions
             int take = ConstProvider.DefaultTake) where T : class, ITableEntity, new()
         {
             return await TakeFromPageableAsync(FuncHelper.Execute<TableClient, int?, CancellationToken, AzStorageResponse<AsyncPageable<T>>, AzStorageResponse<AsyncPageable<T>>, AsyncPageable<T>>(
-                PageableQueryAllAsyncPageable<T>,
+                AsyncPageableQueryAll<T>,
                 tableClient,
                 defaultMaxPerPage, cancellationToken), take);
         }
