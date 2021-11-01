@@ -128,5 +128,71 @@ namespace AzCoreTools.Extensions
         }
 
         #endregion
+
+        #region GetAllBlobContainers
+
+        public static AzStorageResponse<List<BlobContainerItem>> GetAllBlobContainers(
+            this BlobServiceClient blobServiceClient,
+            BlobContainerTraits traits = BlobContainerTraits.None,
+            BlobContainerStates states = BlobContainerStates.None,
+            CancellationToken cancellationToken = default,
+            int take = ConstProvider.DefaultTake)
+        {
+            return GetBlobContainers(
+                blobServiceClient,
+                traits,
+                states,
+                default,
+                cancellationToken, take);
+        }
+
+        public static AzStorageResponse<List<BlobContainerItem>> GetAllBlobContainers(
+            this BlobServiceClient blobServiceClient,
+            BlobContainerTraits traits = BlobContainerTraits.None,
+            BlobContainerStates states = BlobContainerStates.None,
+            CancellationToken cancellationToken = default)
+        {
+            return GetBlobContainers(
+                blobServiceClient,
+                traits,
+                states,
+                default,
+                cancellationToken, int.MaxValue);
+        }
+
+        #endregion
+
+        #region GetAllBlobContainersAsync
+
+        public static async Task<AzStorageResponse<List<BlobContainerItem>>> GetAllBlobContainersAsync(
+            this BlobServiceClient blobServiceClient,
+            BlobContainerTraits traits = BlobContainerTraits.None,
+            BlobContainerStates states = BlobContainerStates.None,
+            CancellationToken cancellationToken = default,
+            int take = ConstProvider.DefaultTake)
+        {
+            return await GetBlobContainersAsync(
+                blobServiceClient,
+                traits,
+                states,
+                default,
+                cancellationToken, take);
+        }
+        
+        public static async Task<AzStorageResponse<List<BlobContainerItem>>> GetAllBlobContainersAsync(
+            this BlobServiceClient blobServiceClient,
+            BlobContainerTraits traits = BlobContainerTraits.None,
+            BlobContainerStates states = BlobContainerStates.None,
+            CancellationToken cancellationToken = default)
+        {
+            return await GetBlobContainersAsync(
+                blobServiceClient,
+                traits,
+                states,
+                default,
+                cancellationToken, int.MaxValue);
+        }
+
+        #endregion
     }
 }
