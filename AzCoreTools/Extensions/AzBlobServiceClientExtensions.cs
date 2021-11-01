@@ -133,10 +133,10 @@ namespace AzCoreTools.Extensions
 
         public static AzStorageResponse<List<BlobContainerItem>> GetAllBlobContainers(
             this BlobServiceClient blobServiceClient,
+            int take,
             BlobContainerTraits traits = BlobContainerTraits.None,
             BlobContainerStates states = BlobContainerStates.None,
-            CancellationToken cancellationToken = default,
-            int take = ConstProvider.DefaultTake)
+            CancellationToken cancellationToken = default)
         {
             return GetBlobContainers(
                 blobServiceClient,
@@ -166,10 +166,10 @@ namespace AzCoreTools.Extensions
 
         public static async Task<AzStorageResponse<List<BlobContainerItem>>> GetAllBlobContainersAsync(
             this BlobServiceClient blobServiceClient,
+            int take,
             BlobContainerTraits traits = BlobContainerTraits.None,
             BlobContainerStates states = BlobContainerStates.None,
-            CancellationToken cancellationToken = default,
-            int take = ConstProvider.DefaultTake)
+            CancellationToken cancellationToken = default)
         {
             return await GetBlobContainersAsync(
                 blobServiceClient,

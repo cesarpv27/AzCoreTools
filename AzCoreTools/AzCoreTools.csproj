@@ -4,7 +4,7 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Miscellaneous.AzCoreTools</PackageId>
-    <Version>3.1.0-beta</Version>
+    <Version>3.1.1-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Company>César Palomino Vila</Company>
     <Description>This project contains and accumulates some basic features aimed at the AZURE platform that can help to develop other applications.
@@ -15,7 +15,10 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageProjectUrl>https://github.com/cesarpv27/AzCoreTools</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/cesarpv27/AzCoreTools</RepositoryUrl>
-    <PackageReleaseNotes>v3.1.0
+    <PackageReleaseNotes>v3.1.1
+The order of 'take' parameter in both GetAllBlobContainers and GetAllBlobContainersAsync methods of AzBlobServiceClientExtensions class has been modified, to avoid confusions with overloads.
+
+v3.1.0
 New GetAllBlobContainers and GetAllBlobContainersAsync extension methods has been implemented in class AzBloblServiceClientExtensions.
 
 v3.0.0
