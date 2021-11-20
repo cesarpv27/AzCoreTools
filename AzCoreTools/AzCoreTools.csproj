@@ -4,7 +4,7 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Miscellaneous.AzCoreTools</PackageId>
-    <Version>3.2.1-beta</Version>
+    <Version>3.2.2-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Company>César Palomino Vila</Company>
     <Description>This project contains and accumulates some basic features aimed at the AZURE platform that can help to develop other applications.
@@ -15,7 +15,10 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageProjectUrl>https://github.com/cesarpv27/AzCoreTools</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/cesarpv27/AzCoreTools</RepositoryUrl>
-    <PackageReleaseNotes>v3.2.1
+    <PackageReleaseNotes>v3.2.2
+Method has been added in IAzExceptionManager interface.
+
+v3.2.1
 v3.2.0
 The interface IAzExceptionManager has been added.
 
