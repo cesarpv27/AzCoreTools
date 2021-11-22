@@ -8,7 +8,41 @@ namespace AzCoreTools.Extensions
 {
     public static class ExceptionExtensions
     {
-        #region Cosmos
+        private static TOut ExecuteSwitch<TIn, TOut>(
+            TIn exception,
+            Func<CosmosException, TOut> cosmosExFunc,
+            Func<RequestFailedException, TOut> requestFailedExFunc,
+            Func<TIn, TOut> defaultFunc)
+            where TIn : Exception
+        {
+            var exceptionType = exception.GetType();
+            switch (exceptionType)
+            {
+                case Type _ when exceptionType == typeof(CosmosException):
+                    return cosmosExFunc(exception as CosmosException);
+                case Type _ when exceptionType == typeof(RequestFailedException):
+                    return requestFailedExFunc(exception as RequestFailedException);
+                default:
+                    return defaultFunc(exception);
+            }
+        }
+
+        public static string GetAzErrorCodeName(this Exception exception)
+        {
+            return ExecuteSwitch(exception, GetAzErrorCodeName, GetAzErrorCodeName, e => string.Empty);
+        }
+
+        public static HttpStatusCode? GetAzHttpStatusCode(this Exception exception)
+        {
+            return ExecuteSwitch(exception, GetAzHttpStatusCode, GetAzHttpStatusCode, e => null);
+        }
+
+        public static string GetAzErrorMessage(this Exception exception)
+        {
+            return ExecuteSwitch(exception, GetAzErrorMessage, GetAzErrorMessage, e => string.Empty);
+        }
+
+        #region CosmosException
 
         public static string GetAzErrorCodeName(this CosmosException exception)
         {
@@ -22,31 +56,29 @@ namespace AzCoreTools.Extensions
 
         public static string GetAzErrorMessage(this CosmosException exception)
         {
-            return exception.ResponseBody;// TODO: Evaluar si este texto es relevante
+            return exception.ResponseBody;
         }
 
-        public static string GetAzErrorCodeName(this Exception exception)
-        {
-            if (exception is CosmosException _cosmosException)
-                return GetAzErrorCodeName(_cosmosException);
+        #endregion
 
-            return string.Empty;
+        #region RequestFailedException
+
+        public static string GetAzErrorCodeName(this RequestFailedException exception)
+        {
+            return exception.ErrorCode;
         }
 
-        public static HttpStatusCode? GetAzHttpStatusCode(this Exception exception)
+        public static HttpStatusCode? GetAzHttpStatusCode(this RequestFailedException exception)
         {
-            if (exception is CosmosException _cosmosException)
-                return GetAzHttpStatusCode(_cosmosException);
+            if (Enum.IsDefined(typeof(int), exception.Status))
+                return (HttpStatusCode)exception.Status;
 
             return null;
         }
 
-        public static string GetAzErrorMessage(this Exception exception)
+        public static string GetAzErrorMessage(this RequestFailedException exception)
         {
-            if (exception is CosmosException _cosmosException)
-                return GetAzErrorMessage(_cosmosException);
-
-            return string.Empty;
+            return exception.Message;
         }
 
         #endregion
