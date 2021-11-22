@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AzCoreTools.Core.Interfaces
 {
-    public interface IAzExceptionManager
+    public interface IAzErrorManager
     {
         bool IsResourceAlreadyExistsException<TEx>(TEx exception) where TEx : Exception;
         bool IsResourceNotFoundException<TEx>(TEx exception) where TEx : Exception;
