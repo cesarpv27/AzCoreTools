@@ -4,7 +4,7 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Miscellaneous.AzCoreTools</PackageId>
-    <Version>3.3.0-beta</Version>
+    <Version>3.3.1-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Company>César Palomino Vila</Company>
     <Description>This project contains and accumulates some basic features aimed at the AZURE platform that can help to develop other applications.
@@ -15,7 +15,13 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageProjectUrl>https://github.com/cesarpv27/AzCoreTools</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/cesarpv27/AzCoreTools</RepositoryUrl>
-    <PackageReleaseNotes>v3.3.0
+    <PackageReleaseNotes>v3.3.1
+Some methods has been renamed in ExceptionExtensions class:
+GetAzErrorCodeName has been renamed to GetAzureErrorCode
+GetAzHttpStatusCode has been renamed to GetAzureHttpStatusCode
+GetAzErrorMessage has been renamed to GetAzureErrorMessage
+
+v3.3.0
 Methods has been added or updated in ExceptionExtensions class, with support to RequestFailedException.
 IAzExceptionManager  class has been renamed to IAzErrorManager.
 

@@ -27,34 +27,34 @@ namespace AzCoreTools.Extensions
             }
         }
 
-        public static string GetAzErrorCodeName(this Exception exception)
+        public static string GetAzureErrorCode(this Exception exception)
         {
-            return ExecuteSwitch(exception, GetAzErrorCodeName, GetAzErrorCodeName, e => string.Empty);
+            return ExecuteSwitch(exception, GetAzureErrorCode, GetAzureErrorCode, e => string.Empty);
         }
 
-        public static HttpStatusCode? GetAzHttpStatusCode(this Exception exception)
+        public static HttpStatusCode? GetAzureHttpStatusCode(this Exception exception)
         {
-            return ExecuteSwitch(exception, GetAzHttpStatusCode, GetAzHttpStatusCode, e => null);
+            return ExecuteSwitch(exception, GetAzureHttpStatusCode, GetAzureHttpStatusCode, e => null);
         }
 
-        public static string GetAzErrorMessage(this Exception exception)
+        public static string GetAzureErrorMessage(this Exception exception)
         {
-            return ExecuteSwitch(exception, GetAzErrorMessage, GetAzErrorMessage, e => string.Empty);
+            return ExecuteSwitch(exception, GetAzureErrorMessage, GetAzureErrorMessage, e => string.Empty);
         }
 
         #region CosmosException
 
-        public static string GetAzErrorCodeName(this CosmosException exception)
+        public static string GetAzureErrorCode(this CosmosException exception)
         {
             return exception.StatusCode.ToString();
         }
 
-        public static HttpStatusCode GetAzHttpStatusCode(this CosmosException exception)
+        public static HttpStatusCode GetAzureHttpStatusCode(this CosmosException exception)
         {
             return exception.StatusCode;
         }
 
-        public static string GetAzErrorMessage(this CosmosException exception)
+        public static string GetAzureErrorMessage(this CosmosException exception)
         {
             return exception.ResponseBody;
         }
@@ -63,12 +63,12 @@ namespace AzCoreTools.Extensions
 
         #region RequestFailedException
 
-        public static string GetAzErrorCodeName(this RequestFailedException exception)
+        public static string GetAzureErrorCode(this RequestFailedException exception)
         {
             return exception.ErrorCode;
         }
 
-        public static HttpStatusCode? GetAzHttpStatusCode(this RequestFailedException exception)
+        public static HttpStatusCode? GetAzureHttpStatusCode(this RequestFailedException exception)
         {
             if (Enum.IsDefined(typeof(int), exception.Status))
                 return (HttpStatusCode)exception.Status;
@@ -76,7 +76,7 @@ namespace AzCoreTools.Extensions
             return null;
         }
 
-        public static string GetAzErrorMessage(this RequestFailedException exception)
+        public static string GetAzureErrorMessage(this RequestFailedException exception)
         {
             return exception.Message;
         }
