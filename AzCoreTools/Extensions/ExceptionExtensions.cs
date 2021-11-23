@@ -70,7 +70,7 @@ namespace AzCoreTools.Extensions
 
         public static HttpStatusCode? GetAzureHttpStatusCode(this RequestFailedException exception)
         {
-            if (Enum.IsDefined(typeof(int), exception.Status))
+            if (Enum.IsDefined(typeof(HttpStatusCode), exception.Status))
                 return (HttpStatusCode)exception.Status;
 
             return null;
