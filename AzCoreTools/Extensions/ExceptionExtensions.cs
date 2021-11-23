@@ -81,7 +81,7 @@ namespace AzCoreTools.Extensions
             var message = exception.Message;
             if (string.IsNullOrEmpty(message))
                 return message;
-            return message.Split('.')[0];
+            return $"{message.Split('.')[0]}.";
         }
 
         #endregion
