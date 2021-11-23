@@ -78,7 +78,10 @@ namespace AzCoreTools.Extensions
 
         public static string GetAzureErrorMessage(this RequestFailedException exception)
         {
-            return exception.Message;
+            var message = exception.Message;
+            if (string.IsNullOrEmpty(message))
+                return message;
+            return message.Split('.')[0];
         }
 
         #endregion
