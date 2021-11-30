@@ -138,7 +138,7 @@ namespace AzCoreTools.Extensions
             QueryRequestOptions requestOptions = default,
             CancellationToken cancellationToken = default)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(filter, nameof(filter), nameof(filter));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(filter, nameof(filter), nameof(filter));
             return TakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
                 FeedIteratorQueryByFilter<T>,
                 container,
@@ -156,7 +156,7 @@ namespace AzCoreTools.Extensions
             QueryRequestOptions requestOptions = default,
             CancellationToken cancellationToken = default)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(filter, nameof(filter), nameof(filter));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(filter, nameof(filter), nameof(filter));
             return LazyTakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
                 FeedIteratorQueryByFilter<T>,
                 container,
@@ -245,7 +245,7 @@ namespace AzCoreTools.Extensions
             QueryRequestOptions requestOptions = default,
             CancellationToken cancellationToken = default)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
             return TakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
                 FeedIteratorQueryByPartitionKey<T>,
                 container,
@@ -262,7 +262,7 @@ namespace AzCoreTools.Extensions
             QueryRequestOptions requestOptions = default,
             CancellationToken cancellationToken = default)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
             return LazyTakeFromFeedIteratorAndDispose(CosmosFuncHelper.Execute<Container, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
                 FeedIteratorQueryByPartitionKey<T>,
                 container,
@@ -347,7 +347,7 @@ namespace AzCoreTools.Extensions
             QueryRequestOptions requestOptions = default,
             CancellationToken cancellationToken = default)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(filter, nameof(filter), nameof(filter));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(filter, nameof(filter), nameof(filter));
             return await TakeFromFeedIteratorAndDisposeAsync(CosmosFuncHelper.Execute<Container, string, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
                 FeedIteratorQueryByFilter<T>,
                 container,
@@ -392,7 +392,7 @@ namespace AzCoreTools.Extensions
             QueryRequestOptions requestOptions = default,
             CancellationToken cancellationToken = default)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
             return await TakeFromFeedIteratorAndDisposeAsync(CosmosFuncHelper.Execute<Container, string, QueryRequestOptions, AzCosmosResponse<FeedIterator<T>>, AzCosmosResponse<FeedIterator<T>>, FeedIterator<T>>(
                 FeedIteratorQueryByPartitionKey<T>,
                 container,

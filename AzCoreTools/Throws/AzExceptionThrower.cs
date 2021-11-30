@@ -52,7 +52,7 @@ namespace AzCoreTools.Throws
 
         public virtual void ThrowIfKeyIsInvalid(string key, string paramName, string message)
         {
-            AzExThrower.ThrowIfArgumentIsNullOrEmptyOrWhitespace(key, paramName, message);
+            AzExThrower.ThrowIfArgumentIsNullOrWhitespace(key, paramName, message);
         }
 
         #endregion
