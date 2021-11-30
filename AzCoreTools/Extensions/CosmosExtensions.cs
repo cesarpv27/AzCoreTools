@@ -65,14 +65,14 @@ namespace AzCoreTools.Extensions
             if (!@this.Succeeded)
                 return @this.InduceResponse<List<string>>();
             if (@this.Value == default)
-                ExThrower.ST_ThrowApplicationException($"Value of property '{nameof(@this.Value)}'is null");
+                ExThrower.ST_ThrowInvalidOperationException($"Value of property '{nameof(@this.Value)}'is null");
 
             var strList = new List<string>(@this.Value.Count);
             string commonStr;
             foreach (var opResult in @this.Value)
             {
                 if (!opResult.TryConvertResourceToString(out commonStr) || string.IsNullOrEmpty(commonStr))
-                    ExThrower.ST_ThrowApplicationException("Could not convert response resource to string." +
+                    ExThrower.ST_ThrowInvalidOperationException("Could not convert response resource to string." +
                         $"Response ActivityId:{@this.Value.ActivityId}");
                 else
                     strList.Add(commonStr);

@@ -103,7 +103,7 @@ namespace AzCoreTools.Utilities.Tables
           QueryComparison operation, string value, 
           AzPropType azPropType)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(propName);
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(propName, nameof(propName), nameof(propName));
 
             string formattedValue;
             switch (azPropType)
